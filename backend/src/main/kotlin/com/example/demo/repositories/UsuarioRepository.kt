@@ -8,8 +8,8 @@ import java.util.*
 @Repository
 interface UsuarioRepository : MongoRepository<Usuario, String> {
     fun findByRut(rut: String): Optional<Usuario>
+    fun findByCorreo(correo: String): Optional<Usuario>
     fun existsByRut(rut: String): Boolean
     fun existsByCorreo(correo: String): Boolean
     fun findByRol(rol: String): List<Usuario>
-    fun countByRol(rol: String): Long
 }
