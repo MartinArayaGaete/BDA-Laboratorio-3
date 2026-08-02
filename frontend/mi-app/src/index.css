@@ -1,0 +1,27 @@
+/* Al final del archivo */
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.flex-grow-1 .card.bg-dark h2,
+.flex-grow-1 .card.bg-dark h6,
+.flex-grow-1 .card.bg-dark p,
+.flex-grow-1 .card.bg-dark small {
+  color: #ffffff !important;
+}
+
+/* Excepciones para badges y alertas */
+.flex-grow-1 .badge,
+.flex-grow-1 .alert {
+  color: inherit;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
