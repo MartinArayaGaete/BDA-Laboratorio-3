@@ -13,3 +13,4 @@ interface UsuarioRepository : MongoRepository<Usuario, String> {
     fun existsByCorreo(correo: String): Boolean
     fun findByRol(rol: String): List<Usuario>
 }
+
