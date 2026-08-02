@@ -81,10 +81,43 @@ services:
     networks:
       - archeryNetwork
 
+
+  mongo-archery:
+    image: mongo:7.0
+    container_name: mongo-archery
+    environment:
+      MONGO_INITDB_DATABASE: "archerydb"
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - archeryNetwork
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-archery:27017"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "12345"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo-archery
+    networks:
+      - archeryNetwork
+
 volumes:
   archeryPostgresData:
     name: archeryPostgresData
     driver: local
+  mongo_data:
 
 networks:
   archeryNetwork:
