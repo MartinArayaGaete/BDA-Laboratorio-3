@@ -56,6 +56,17 @@
 /app/src/main/java/com/example/demo/models/SectoresAmbientales.java
 /app/src/main/java/com/example/demo/models/Torneo.java
 /app/src/main/java/com/example/demo/models/Usuario.java
+/app/src/main/java/com/example/demo/mongo_config/MongoConfig.java
+/app/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java
+/app/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java
+/app/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java
+/app/src/main/java/com/example/demo/mongo_models/ParticipacionDocument.java
+/app/src/main/java/com/example/demo/mongo_models/PuntuacionDocument.java
+/app/src/main/java/com/example/demo/mongo_models/RankingVivoDocument.java
+/app/src/main/java/com/example/demo/mongo_models/RondaDocument.java
+/app/src/main/java/com/example/demo/mongo_models/TorneoDocument.java
+/app/src/main/java/com/example/demo/mongo_repositories/TorneoMongoRepository.java
+/app/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java
 /app/src/main/java/com/example/demo/repositories/CategoriaAmbientalRepository.java
 /app/src/main/java/com/example/demo/repositories/CategoriaRepository.java
 /app/src/main/java/com/example/demo/repositories/EstadisticasRepository.java

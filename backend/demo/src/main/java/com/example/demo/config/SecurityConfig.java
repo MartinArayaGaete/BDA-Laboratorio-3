@@ -20,11 +20,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtRequestFilter jwtRequestFilter;
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
-        this.jwtRequestFilter = jwtRequestFilter;
-    }
+    // private final JwtRequestFilter jwtRequestFilter;
+
+    // public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
+    //     this.jwtRequestFilter = jwtRequestFilter;
+    // }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,35 +39,32 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas Públicas
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+                                // TODO: DESACTIVADO PARA PRUEBAS - TODO PERMITIDO
+                                .anyRequest().permitAll()
 
-                        // Rutas Estrictas de Administrador
-                        .requestMatchers(HttpMethod.POST, "/api/torneos").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/torneos/registrar-puntaje").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/logs", "/api/logs/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/rondas/*/zona-ambiental").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/sectores-ambientales").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/sectores-ambientales/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/categorias-ambientales").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categorias-ambientales/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/torneos/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/rondas/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/torneos/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/torneos/*").hasRole("ADMIN")
-
-
-                        // Rutas Compartidas
-                        .requestMatchers(HttpMethod.POST, "/api/participaciones/inscribir").hasAnyRole("ADMIN", "ARQUERO")
-                        .requestMatchers(HttpMethod.DELETE, "/api/participaciones/desinscribir").hasAnyRole("ADMIN", "ARQUERO")
-                        .requestMatchers(HttpMethod.GET, "/api/torneos/leaderboard").hasAnyRole("ADMIN", "ARQUERO")
-                        .requestMatchers(HttpMethod.GET, "/api/arqueros/rendimiento/ultimo-mes").hasAnyRole("ADMIN", "ARQUERO")
-
-                        // Todas las demás rutas requieren estar autenticado
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                        // === SEGURIDAD ===
+                        // .requestMatchers("/api/auth/**").permitAll()
+                        // .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+                        // .requestMatchers(HttpMethod.POST, "/api/torneos").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST, "/api/torneos/registrar-puntaje").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.GET, "/api/logs", "/api/logs/**").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.PUT, "/api/rondas/*/zona-ambiental").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST, "/api/sectores-ambientales").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/sectores-ambientales/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST, "/api/categorias-ambientales").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/categorias-ambientales/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/torneos/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/rondas/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.PUT, "/api/torneos/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/torneos/*").hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST, "/api/participaciones/inscribir").hasAnyRole("ADMIN", "ARQUERO")
+                        // .requestMatchers(HttpMethod.DELETE, "/api/participaciones/desinscribir").hasAnyRole("ADMIN", "ARQUERO")
+                        // .requestMatchers(HttpMethod.GET, "/api/torneos/leaderboard").hasAnyRole("ADMIN", "ARQUERO")
+                        // .requestMatchers(HttpMethod.GET, "/api/arqueros/rendimiento/ultimo-mes").hasAnyRole("ADMIN", "ARQUERO")
+                        // .anyRequest().authenticated()
+                );
+        // COMENDATO PARA PROBAR
+        // .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
