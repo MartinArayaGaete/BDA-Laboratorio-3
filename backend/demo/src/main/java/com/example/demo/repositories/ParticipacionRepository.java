@@ -76,6 +76,28 @@ public class ParticipacionRepository {
         }
     }
 
+    public Optional<Map<String, Object>> obtenerDatosParaMongoPorIdParticipacion(Long idParticipacion) {
+        String sql = """
+                SELECT p.id_participacion,
+                       p.id_torneo,
+                       p.id_usuario,
+                       u.nombre AS nombre_usuario,
+                       t.nombre_torneo,
+                       c.nombre_categoria
+                FROM participacion p
+                JOIN usuario u ON p.id_usuario = u.id_usuario
+                JOIN torneo t ON p.id_torneo = t.id_torneo
+                LEFT JOIN categoria c ON t.id_categoria = c.id_categoria
+                WHERE p.id_participacion = ?
+                """;
+
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, idParticipacion);
+        if (result.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(result.get(0));
+    }
+
     public void actualizarPuntajeFinalConTrigger(Long idAdmin, Long idRondaAfectada, Integer puntajeFinal, Long idUsuario, Long idTorneo) {
         jdbcTemplate.execute((ConnectionCallback<Void>) conn -> {
             try (

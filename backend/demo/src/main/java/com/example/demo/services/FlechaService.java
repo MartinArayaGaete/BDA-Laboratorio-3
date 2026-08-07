@@ -3,6 +3,8 @@ package com.example.demo.services;
 import com.example.demo.dtos.FlechaArqueroDTO;
 import com.example.demo.dtos.LeaderboardDTO;
 import com.example.demo.dtos.PuntajeRondaDTO;
+import com.example.demo.mongo_models.PuntuacionDocument;
+import com.example.demo.mongo_services.PuntuacionMongoService;
 import com.example.demo.repositories.FlechaRepository;
 import com.example.demo.repositories.ParticipacionRepository;
 import com.example.demo.repositories.RondaRepository;
@@ -12,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FlechaService {
@@ -20,11 +25,16 @@ public class FlechaService {
     private final ParticipacionRepository participacionRepository;
     private final RondaRepository rondaRepository;
     private final FlechaRepository flechaRepository;
+    private final PuntuacionMongoService puntuacionMongoService;
 
-    public FlechaService(FlechaRepository flechaRepository, ParticipacionRepository participacionRepository, RondaRepository rondaRepository) {
+    public FlechaService(FlechaRepository flechaRepository,
+                         ParticipacionRepository participacionRepository,
+                         RondaRepository rondaRepository,
+                         PuntuacionMongoService puntuacionMongoService) {
         this.flechaRepository = flechaRepository;
         this.participacionRepository = participacionRepository;
         this.rondaRepository = rondaRepository;
+        this.puntuacionMongoService = puntuacionMongoService;
     }
 
     public List<FlechaArqueroDTO> obtenerFlechasArquero(Long idUsuario, Long idTorneo) {
@@ -62,7 +72,45 @@ public class FlechaService {
             );
         }
 
+        guardarPuntuacionMongo(request);
         registrarLogSistema(request);
+    }
+
+    private void guardarPuntuacionMongo(PuntajeRondaDTO request) {
+        try {
+            var ronda = rondaRepository.buscarPorId(request.getIdRonda())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ronda no encontrada"));
+
+            Map<String, Object> datosParticipacion = participacionRepository.obtenerDatosParaMongoPorIdParticipacion(request.getIdParticipacion())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participación no encontrada"));
+
+            ArrayList<Integer> flechas = request.getFlechas() == null
+                    ? new ArrayList<>()
+                    : new ArrayList<>(request.getFlechas());
+
+            int puntajeTotal = flechas.stream()
+                    .filter(valor -> valor != null)
+                    .mapToInt(Integer::intValue)
+                    .sum();
+
+            PuntuacionDocument document = new PuntuacionDocument();
+            document.setTorneoId(String.valueOf(ronda.getIdTorneo()));
+            document.setRondaId(String.valueOf(request.getIdRonda()));
+            document.setUsuarioId(((Number) datosParticipacion.get("id_usuario")).longValue());
+            document.setNombreArquero((String) datosParticipacion.get("nombre_usuario"));
+            document.setNombreTorneo((String) datosParticipacion.get("nombre_torneo"));
+            document.setNumeroRonda(ronda.getNumeroRonda());
+            document.setCategoria((String) datosParticipacion.get("nombre_categoria"));
+            document.setFlechas(flechas);
+            document.setPuntajeTotal(puntajeTotal);
+            document.setPosicionArquero(request.getPosicionArquero());
+            document.setPosicionDiana(request.getPosicionDiana());
+            document.setUpdatedAt(LocalDateTime.now());
+
+            puntuacionMongoService.guardarOActualizar(document);
+        } catch (Exception exception) {
+            System.err.println("No se pudo sincronizar la puntuación en Mongo: " + exception.getMessage());
+        }
     }
 
     private String extraerMensajeBaseDatos(Throwable exception) {

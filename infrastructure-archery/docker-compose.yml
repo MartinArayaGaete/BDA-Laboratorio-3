@@ -31,10 +31,10 @@ services:
       POSTGRES_DB: "${POSTGRES_DB:-archeryDb}"
       POSTGRES_USER: "${POSTGRES_USER:-archeryUser}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-12345}"
-    volumes:
-      - ../backend/demo:/app
     depends_on:
       database-archery:
+        condition: service_healthy
+      mongo-archery:
         condition: service_healthy
     restart: unless-stopped
     networks:
