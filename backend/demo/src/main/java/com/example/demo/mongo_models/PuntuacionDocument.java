@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -24,13 +25,12 @@ public class PuntuacionDocument {
     private Long usuarioId;
     private String nombreArquero;
     private String nombreTorneo;
-    private int numeroRonda;
+    private Integer numeroRonda;
     private String categoria;
-    private List<Integer> flechas;
-    private int puntajeTotal;
+    private List<Integer> flechas = new ArrayList<>();
+    private Integer puntajeTotal = 0;
     private String posicionArquero;
     private String posicionDiana;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 }
-

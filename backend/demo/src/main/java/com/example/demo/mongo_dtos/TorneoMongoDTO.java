@@ -13,7 +13,7 @@ public class TorneoMongoDTO {
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaTermino;
-    private int plazasMax;
+    private Integer plazasMax = 20; // si es null queda en 20 plazas
     private String categoriaNombre = "RECURVO";
-    private int distanciaTiro = 18;
+    private Integer distanciaTiro = 18;
 }

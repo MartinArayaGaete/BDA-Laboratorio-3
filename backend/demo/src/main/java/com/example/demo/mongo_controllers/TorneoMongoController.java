@@ -42,4 +42,25 @@ public class TorneoMongoController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}/iniciar")
+    public ResponseEntity<?> iniciarTorneo(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(service.iniciarTorneo(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    @PutMapping("/{id}/finalizar")
+    public ResponseEntity<?> finalizarTorneo(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(service.finalizarTorneo(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
 }
