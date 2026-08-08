@@ -83,4 +83,14 @@ public class UsuarioRepository {
         String sql = "UPDATE usuario SET nombre = ?, correo = ?, rol = ? WHERE rut = ?";
         jdbcTemplate.update(sql, nombre, correo, rol, rut);
     }
+
+    public Optional<Usuario> buscarPorId(Long id) {
+        String sql = "SELECT id_usuario, rut, nombre, correo, contrasena, rol FROM usuario WHERE id_usuario = ?";
+        try {
+            Usuario usuario = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRowToUsuario(rs), id);
+            return Optional.ofNullable(usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }
