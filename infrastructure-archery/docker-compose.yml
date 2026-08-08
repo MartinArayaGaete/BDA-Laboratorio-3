@@ -51,7 +51,7 @@ services:
       PGTZ: "${APP_TIMEZONE:-America/Santiago}"
     volumes:
       - archeryPostgresData:/var/lib/postgresql/data
-      - ../database:/docker-entrypoint-initdb.d
+      - ../database/sql:/docker-entrypoint-initdb.d
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     restart: unless-stopped

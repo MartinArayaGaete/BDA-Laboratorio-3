@@ -4,27 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Commit ParticipacionMongo CRUD">
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/PuntuacionMongoController.java" afterDir="false" />
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/PuntuacionDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/PuntuacionDocument.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/01-dbCreate.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/01-dbCreate.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/02-materialViews.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/02-materialViews.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/03-materialView_geo.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/03-materialView_geo.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/04-StoredProced.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/04-StoredProced.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/05-StoredProced.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/05-StoredProced.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/06-storedProcedLab2_1.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/06-storedProcedLab2_1.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/07-storedProcedLab2_2.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/07-storedProcedLab2_2.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/08-Triggers.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/08-Triggers.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/09-Triggers_geo.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/09-Triggers_geo.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/10-loadData.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/10-loadData.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/11-testData.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/sql/11-testData.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure-archery/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure-archery/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +102,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786214199486</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Puntuaciones + mover carpetas">
+      <option name="closed" value="true" />
+      <created>1786227352156</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1786227352156</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -137,6 +128,7 @@
     <MESSAGE value="Actualizacion POM se agrega mongo, también se agrega en el docker-compose.yml, se logra conexión con la BD y el backend." />
     <MESSAGE value="Commit RondaMongo CRUD" />
     <MESSAGE value="Commit ParticipacionMongo CRUD" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit ParticipacionMongo CRUD" />
+    <MESSAGE value="Puntuaciones + mover carpetas" />
+    <option name="LAST_COMMIT_MESSAGE" value="Puntuaciones + mover carpetas" />
   </component>
 </project>

@@ -12,7 +12,10 @@ import com.example.demo.mongo_repositories.ParticipacionMongoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TorneoMongoService {
@@ -80,7 +83,7 @@ public class TorneoMongoService {
             throw new IllegalArgumentException("Solo se pueden finalizar torneos en curso");
         }
 
-        // Finalizar ronda activa si existe
+        // Finalizar ronda activa
         List<RondaDocument> rondas = rondaMongoRepo.findByTorneoIdOrderByNumeroRondaAsc(id);
         rondas.stream()
                 .filter(r -> "IN_COURSE".equals(r.getEstado()))
@@ -90,25 +93,47 @@ public class TorneoMongoService {
                     rondaMongoRepo.save(r);
                 });
 
-        // Cambiar estado del torneo
+        // Cambiar estado
         torneo.setEstado("FINISHED");
         torneo = torneoMongoRepo.save(torneo);
 
-        // Calcular ranking final y actualizar participaciones
-        List<PuntuacionDocument> ranking = puntuacionMongoRepo
-                .findByTorneoIdOrderByPuntajeTotalDesc(id);
+        // Calcular podio
+        calcularPodio(id);
 
+        return torneo;
+    }
+
+    private void calcularPodio(String torneoId) {
+        List<PuntuacionDocument> todas = puntuacionMongoRepo.findByTorneoId(torneoId);
+
+        // Agrupar por usuarioId y sumar puntajes
+        Map<Long, Integer> sumaPorUsuario = new LinkedHashMap<>();
+        Map<Long, String> nombrePorUsuario = new LinkedHashMap<>();
+
+        for (PuntuacionDocument p : todas) {
+            sumaPorUsuario.merge(p.getUsuarioId(), p.getPuntajeTotal(), Integer::sum);
+            nombrePorUsuario.putIfAbsent(p.getUsuarioId(), p.getNombreArquero());
+        }
+
+        // Ordenar por puntaje descendente
+        List<Map.Entry<Long, Integer>> ranking = sumaPorUsuario.entrySet().stream()
+                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                .collect(Collectors.toList());
+
+        // Actualizar participaciones con posición final
         int posicion = 1;
-        for (PuntuacionDocument p : ranking) {
-            participacionMongoRepo.findByTorneoIdAndUsuarioId(id, p.getUsuarioId())
+        for (Map.Entry<Long, Integer> entry : ranking) {
+            final Long usuarioId = entry.getKey();
+            final int puntajeTotal = entry.getValue();
+            final int posicionFinal = posicion;
+
+            participacionMongoRepo.findByTorneoIdAndUsuarioId(torneoId, usuarioId)
                     .ifPresent(part -> {
-                        part.setPuntajeFinal(p.getPuntajeTotal());
-                        part.setPosicionFinal(posicion);
+                        part.setPuntajeFinal(puntajeTotal);
+                        part.setPosicionFinal(posicionFinal);
                         participacionMongoRepo.save(part);
                     });
             posicion++;
         }
-
-        return torneo;
     }
 }
