@@ -37,3 +37,12 @@ until mongosh --host mongo-archery:27017 --quiet --eval '
 '; do
   sleep 2
 done
+
+
+mongosh \
+  "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" \
+  /scripts/configs/01-SchemaValidation.js
+
+mongosh \
+  "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" \
+  /scripts/configs/02-Indexes.js

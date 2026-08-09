@@ -124,6 +124,7 @@ services:
       - mongo-archery-secondary
     volumes:
       - ./mongo/init-replica-set.sh:/scripts/init-replica-set.sh:ro
+      - ../database/mongo:/scripts/configs:ro
     entrypoint: [ "/bin/bash", "/scripts/init-replica-set.sh" ]
     restart: "no"
     networks:
