@@ -122,10 +122,22 @@ services:
     depends_on:
       - mongo-archery
       - mongo-archery-secondary
+    entrypoint:
+      - bash
+      - -c
+      - |
+        until mongosh --host mongo-archery --quiet --eval "quit(db.adminCommand('ping').ok ? 0 : 1)"; do sleep 2; done
+        until mongosh --host mongo-archery-secondary --quiet --eval "quit(db.adminCommand('ping').ok ? 0 : 1)"; do sleep 2; done
+        mongosh --host mongo-archery --quiet --eval '
+        try { void rs.status(); } catch (error) {
+        if (error.codeName !== "NotYetInitialized") { throw error; }
+        rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongo-archery:27017", priority: 2 }, { _id: 1, host: "mongo-archery-secondary:27017", priority: 1 }] }); }'
+        until mongosh --host mongo-archery --quiet --eval 'quit(rs.status().members.every(m => m.health === 1) ? 0 : 1)'; do sleep 2; done
+        echo "Replica Set ready"
+        mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/01-SchemaValidation.js
+        mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/02-Indexes.js
     volumes:
-      - ./mongo/init-replica-set.sh:/scripts/init-replica-set.sh:ro
       - ../database/mongo:/scripts/configs:ro
-    entrypoint: [ "/bin/bash", "/scripts/init-replica-set.sh" ]
     restart: "no"
     networks:
       - archeryNetwork
