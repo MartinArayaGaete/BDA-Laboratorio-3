@@ -11,5 +11,4 @@ public class CategoriaDiana {
     private Long idCategoriaDiana;
     private String nombreCategoriaDiana;
     private Integer puntajeMinimo;
-    private Integer puntajeMaximo;
 }

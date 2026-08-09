@@ -128,8 +128,7 @@ CREATE TABLE IF NOT EXISTS flecha (
 CREATE TABLE IF NOT EXISTS categoria_diana (
     id_categoria_diana BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre_categoria_diana VARCHAR(80) NOT NULL,
-    puntaje_minimo INT NOT NULL DEFAULT 0,
-    puntaje_maximo INT NOT NULL DEFAULT 10
+    puntaje_minimo INT NOT NULL DEFAULT 0
 );
 
 

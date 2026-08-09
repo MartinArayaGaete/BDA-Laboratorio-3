@@ -61,6 +61,5 @@ public class TorneoDocument {
     public static class CategoriaDianaEmbedded {
         private String nombre = "ADULTO";
         private int puntajeMinimo = 5;
-        private int puntajeMaximo = 10;
     }
 }

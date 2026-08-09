@@ -9,6 +9,10 @@ import com.example.demo.mongo_repositories.TorneoMongoRepository;
 import com.example.demo.mongo_repositories.RondaMongoRepository;
 import com.example.demo.mongo_repositories.PuntuacionMongoRepository;
 import com.example.demo.mongo_repositories.ParticipacionMongoRepository;
+import com.example.demo.models.Categoria;
+import com.example.demo.models.CategoriaDiana;
+import com.example.demo.repositories.CategoriaDianaRepository;
+import com.example.demo.repositories.CategoriaRepository;
 import com.example.demo.repositories.TorneoRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,24 +30,51 @@ public class TorneoMongoService {
     private final PuntuacionMongoRepository puntuacionMongoRepo;
     private final ParticipacionMongoRepository participacionMongoRepo;
     private final TorneoRepository torneoSqlRepo;
+    private final CategoriaRepository categoriaSqlRepo;
+    private final CategoriaDianaRepository categoriaDianaSqlRepo;
 
     public TorneoMongoService(TorneoMongoRepository torneoMongoRepo,
                               RondaMongoRepository rondaMongoRepo,
                               PuntuacionMongoRepository puntuacionMongoRepo,
                               ParticipacionMongoRepository participacionMongoRepo,
-                              TorneoRepository torneoSqlRepo) {
+                              TorneoRepository torneoSqlRepo,
+                              CategoriaRepository categoriaSqlRepo,
+                              CategoriaDianaRepository categoriaDianaSqlRepo) {
         this.torneoMongoRepo = torneoMongoRepo;
         this.rondaMongoRepo = rondaMongoRepo;
         this.puntuacionMongoRepo = puntuacionMongoRepo;
         this.participacionMongoRepo = participacionMongoRepo;
         this.torneoSqlRepo = torneoSqlRepo;
+        this.categoriaSqlRepo = categoriaSqlRepo;
+        this.categoriaDianaSqlRepo = categoriaDianaSqlRepo;
     }
 
     public TorneoDocument crear(TorneoMongoDTO dto) {
         if (torneoMongoRepo.existsByNombre(dto.getNombre())) {
             throw new IllegalArgumentException("Ya existe un torneo con ese nombre");
         }
-        TorneoDocument saved = torneoMongoRepo.save(TorneoMongoMapper.toDocument(dto));
+
+        TorneoDocument doc = TorneoMongoMapper.toDocument(dto);
+
+        if (dto.getCategoriaDistanciaId() != null) {
+            Categoria categoria = categoriaSqlRepo.buscarPorId(dto.getCategoriaDistanciaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría distancia no encontrada"));
+            TorneoDocument.CategoriaDistanciaEmbedded emb = new TorneoDocument.CategoriaDistanciaEmbedded();
+            emb.setNombre(categoria.getNombreCategoria());
+            emb.setDistanciaTiro(categoria.getDistanciaTiro() != null ? categoria.getDistanciaTiro() : 18);
+            doc.setCategoriaDistancia(emb);
+        }
+
+        if (dto.getCategoriaDianaId() != null) {
+            CategoriaDiana categoriaDiana = categoriaDianaSqlRepo.buscarPorId(dto.getCategoriaDianaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría diana no encontrada"));
+            TorneoDocument.CategoriaDianaEmbedded emb = new TorneoDocument.CategoriaDianaEmbedded();
+            emb.setNombre(categoriaDiana.getNombreCategoriaDiana());
+            emb.setPuntajeMinimo(categoriaDiana.getPuntajeMinimo() != null ? categoriaDiana.getPuntajeMinimo() : 5);
+            doc.setCategoriaDiana(emb);
+        }
+
+        TorneoDocument saved = torneoMongoRepo.save(doc);
         if (dto.getSqlIdTorneo() != null) {
             return sincronizarZonasAmbientalesDesdeSql(saved.getId(), dto.getSqlIdTorneo());
         }
@@ -65,17 +96,17 @@ public class TorneoMongoService {
 
     public TorneoDocument sincronizarZonasAmbientalesDesdeSql(String mongoTorneoId, Long sqlIdTorneo) {
         TorneoDocument torneo = torneoMongoRepo.findById(mongoTorneoId)
-                .orElseThrow(() -> new IllegalArgumentException("Torneo Mongo no encontrado: " + mongoTorneoId));
+                .orElseThrow(() -> new IllegalArgumentException("Torneo Mongo no encontrado"));
 
         List<Map<String, Object>> zonasSql = torneoSqlRepo.obtenerClimasPorTorneo(sqlIdTorneo);
 
         List<TorneoDocument.ZonaAmbientalEmbedded> zonas = zonasSql.stream()
-            .map(row -> new TorneoDocument.ZonaAmbientalEmbedded(
-                row.get("id_zona_ambiental") == null ? null : ((Number) row.get("id_zona_ambiental")).longValue(),
-                row.get("id_categoria_ambiental") == null ? null : ((Number) row.get("id_categoria_ambiental")).longValue(),
-                row.get("categoria_ambiental") == null ? null : row.get("categoria_ambiental").toString()
-            ))
-            .collect(Collectors.toList());
+                .map(row -> new TorneoDocument.ZonaAmbientalEmbedded(
+                        row.get("id_zona_ambiental") != null ? ((Number) row.get("id_zona_ambiental")).longValue() : null,
+                        row.get("id_categoria_ambiental") != null ? ((Number) row.get("id_categoria_ambiental")).longValue() : null,
+                        row.get("categoria_ambiental") != null ? row.get("categoria_ambiental").toString() : null
+                ))
+                .collect(Collectors.toList());
 
         torneo.setSqlIdTorneo(sqlIdTorneo);
         torneo.setZonasAmbientales(zonas);
@@ -110,7 +141,6 @@ public class TorneoMongoService {
             throw new IllegalArgumentException("Solo se pueden finalizar torneos en curso");
         }
 
-        // Finalizar ronda activa
         List<RondaDocument> rondas = rondaMongoRepo.findByTorneoIdOrderByNumeroRondaAsc(id);
         rondas.stream()
                 .filter(r -> "IN_COURSE".equals(r.getEstado()))
@@ -120,11 +150,9 @@ public class TorneoMongoService {
                     rondaMongoRepo.save(r);
                 });
 
-        // Cambiar estado
         torneo.setEstado("FINISHED");
         torneo = torneoMongoRepo.save(torneo);
 
-        // Calcular podio
         calcularPodio(id);
 
         return torneo;
@@ -133,7 +161,6 @@ public class TorneoMongoService {
     private void calcularPodio(String torneoId) {
         List<PuntuacionDocument> todas = puntuacionMongoRepo.findByTorneoId(torneoId);
 
-        // Agrupar por usuarioId y sumar puntajes
         Map<Long, Integer> sumaPorUsuario = new LinkedHashMap<>();
         Map<Long, String> nombrePorUsuario = new LinkedHashMap<>();
 
@@ -142,12 +169,10 @@ public class TorneoMongoService {
             nombrePorUsuario.putIfAbsent(p.getUsuarioId(), p.getNombreArquero());
         }
 
-        // Ordenar por puntaje descendente
         List<Map.Entry<Long, Integer>> ranking = sumaPorUsuario.entrySet().stream()
                 .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
-        // Actualizar participaciones con posición final
         int posicion = 1;
         for (Map.Entry<Long, Integer> entry : ranking) {
             final Long usuarioId = entry.getKey();

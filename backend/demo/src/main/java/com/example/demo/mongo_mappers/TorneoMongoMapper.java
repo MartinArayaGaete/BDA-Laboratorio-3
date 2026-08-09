@@ -12,12 +12,8 @@ public class TorneoMongoMapper {
         doc.setFechaInicio(dto.getFechaInicio());
         doc.setFechaTermino(dto.getFechaTermino());
         doc.setPlazasMax(dto.getPlazasMax() != null ? dto.getPlazasMax() : 20);
-
-        TorneoDocument.CategoriaEmbedded cat = new TorneoDocument.CategoriaEmbedded();
-        cat.setNombre(dto.getCategoriaNombre() != null ? dto.getCategoriaNombre() : "RECURVO");
-        cat.setDistanciaTiro(dto.getDistanciaTiro() != null ? dto.getDistanciaTiro() : 18);
-        doc.setCategoria(cat);
-
+        doc.setCategoriaDistanciaId(dto.getCategoriaDistanciaId());
+        doc.setCategoriaDianaId(dto.getCategoriaDianaId());
         return doc;
     }
 }

@@ -16,37 +16,35 @@ public class CategoriaDianaRepository {
     }
 
     public List<CategoriaDiana> obtenerTodas() {
-        String sql = "SELECT id_categoria_diana, nombre_categoria_diana, puntaje_minimo, puntaje_maximo FROM categoria_diana ORDER BY id_categoria_diana";
+        String sql = "SELECT id_categoria_diana, nombre_categoria_diana, puntaje_minimo FROM categoria_diana ORDER BY id_categoria_diana";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new CategoriaDiana(
                 rs.getLong("id_categoria_diana"),
                 rs.getString("nombre_categoria_diana"),
-                rs.getInt("puntaje_minimo"),
-                rs.getInt("puntaje_maximo")
+                rs.getInt("puntaje_minimo")
         ));
     }
 
     public Optional<CategoriaDiana> buscarPorId(Long id) {
-        String sql = "SELECT id_categoria_diana, nombre_categoria_diana, puntaje_minimo, puntaje_maximo FROM categoria_diana WHERE id_categoria_diana = ?";
+        String sql = "SELECT id_categoria_diana, nombre_categoria_diana, puntaje_minimo FROM categoria_diana WHERE id_categoria_diana = ?";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new CategoriaDiana(
                     rs.getLong("id_categoria_diana"),
                     rs.getString("nombre_categoria_diana"),
-                    rs.getInt("puntaje_minimo"),
-                    rs.getInt("puntaje_maximo")
+                    rs.getInt("puntaje_minimo")
             ), id));
         } catch (Exception e) {
             return Optional.empty();
         }
     }
 
-    public int crear(String nombre, int puntajeMinimo, int puntajeMaximo) {
-        String sql = "INSERT INTO categoria_diana (nombre_categoria_diana, puntaje_minimo, puntaje_maximo) VALUES (?, ?, ?)";
-        return jdbcTemplate.update(sql, nombre, puntajeMinimo, puntajeMaximo);
+    public int crear(String nombre, int puntajeMinimo) {
+        String sql = "INSERT INTO categoria_diana (nombre_categoria_diana, puntaje_minimo) VALUES (?, ?)";
+        return jdbcTemplate.update(sql, nombre, puntajeMinimo);
     }
 
-    public int actualizar(Long id, String nombre, int puntajeMinimo, int puntajeMaximo) {
-        String sql = "UPDATE categoria_diana SET nombre_categoria_diana = ?, puntaje_minimo = ?, puntaje_maximo = ? WHERE id_categoria_diana = ?";
-        return jdbcTemplate.update(sql, nombre, puntajeMinimo, puntajeMaximo, id);
+    public int actualizar(Long id, String nombre, int puntajeMinimo) {
+        String sql = "UPDATE categoria_diana SET nombre_categoria_diana = ?, puntaje_minimo = ? WHERE id_categoria_diana = ?";
+        return jdbcTemplate.update(sql, nombre, puntajeMinimo, id);
     }
 
     public int eliminar(Long id) {

@@ -29,18 +29,18 @@ public class CategoriaDianaService {
         if (categoria.getNombreCategoriaDiana() == null || categoria.getNombreCategoriaDiana().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre es obligatorio");
         }
-        if (categoria.getPuntajeMinimo() == null || categoria.getPuntajeMaximo() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Puntaje mínimo y máximo son obligatorios");
+        if (categoria.getPuntajeMinimo() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Puntaje mínimo es obligatorio");
         }
-        if (categoria.getPuntajeMinimo() < 0 || categoria.getPuntajeMaximo() > 10) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Puntajes deben estar entre 0 y 10");
+        if (categoria.getPuntajeMinimo() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Puntaje mínimo no puede ser negativo");
         }
-        repository.crear(categoria.getNombreCategoriaDiana(), categoria.getPuntajeMinimo(), categoria.getPuntajeMaximo());
+        repository.crear(categoria.getNombreCategoriaDiana(), categoria.getPuntajeMinimo());
     }
 
     public void actualizar(Long id, CategoriaDiana categoria) {
         buscarPorId(id);
-        repository.actualizar(id, categoria.getNombreCategoriaDiana(), categoria.getPuntajeMinimo(), categoria.getPuntajeMaximo());
+        repository.actualizar(id, categoria.getNombreCategoriaDiana(), categoria.getPuntajeMinimo());
     }
 
     public void eliminar(Long id) {

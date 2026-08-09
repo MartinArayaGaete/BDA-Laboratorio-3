@@ -53,33 +53,27 @@ public class PuntuacionMongoService {
     }
 
     public PuntuacionDocument guardarOActualizar(PuntuacionDocument doc) {
-        // 1. Validar datos de entrada
         validarDatosEntrada(doc);
 
-        // 2. SQL: Validar que el usuario existe
         Usuario usuario = usuarioSqlRepo.buscarPorId(doc.getUsuarioId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado en el sistema"));
 
-        // 3. MongoDB: Validar torneo
         var torneo = torneoMongoRepo.findById(doc.getTorneoId())
                 .orElseThrow(() -> new IllegalArgumentException("Torneo no encontrado"));
         if (!"IN_COURSE".equals(torneo.getEstado())) {
             throw new IllegalArgumentException("El torneo no está en curso. Debe iniciar el torneo primero");
         }
 
-        // 4. MongoDB: Validar ronda
         var ronda = rondaMongoRepo.findById(doc.getRondaId())
                 .orElseThrow(() -> new IllegalArgumentException("Ronda no encontrada"));
         if (!"IN_COURSE".equals(ronda.getEstado())) {
             throw new IllegalArgumentException("La ronda no está en curso. Debe iniciar la ronda primero");
         }
 
-        // 5. MongoDB: Validar inscripción
         if (!participacionMongoRepo.existsByTorneoIdAndUsuarioId(doc.getTorneoId(), doc.getUsuarioId())) {
             throw new IllegalArgumentException("El arquero no está inscrito en este torneo. Debe inscribirlo primero");
         }
 
-        // 6. Upsert
         PuntuacionDocument target = puntuacionMongoRepo
                 .findByTorneoIdAndRondaIdAndUsuarioId(doc.getTorneoId(), doc.getRondaId(), doc.getUsuarioId())
                 .orElseGet(PuntuacionDocument::new);
@@ -94,7 +88,11 @@ public class PuntuacionMongoService {
         target.setNombreArquero(usuario.getNombre());
         target.setNombreTorneo(torneo.getNombre());
         target.setNumeroRonda(ronda.getNumeroRonda());
-        target.setCategoria(torneo.getCategoria().getNombre());
+        target.setCategoria(
+                torneo.getCategoriaDistancia() != null
+                        ? torneo.getCategoriaDistancia().getNombre()
+                        : null
+        );
         target.setFlechas(doc.getFlechas());
         target.setPuntajeTotal(doc.getFlechas().stream().mapToInt(Integer::intValue).sum());
         target.setPosicionArquero(doc.getPosicionArquero());

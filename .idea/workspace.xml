@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure-archery/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure-archery/docker-compose.yml" afterDir="false" />
-    </list>
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,10 +48,10 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "previo__a__la__explosion",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/josej/OneDrive/Desktop/Escritorio/Carpetas/Universidad/Nivel 6/BDA/Lab/Lab3/aweonamiento"
+    "last_opened_file_path": "C:/Users/josej/OneDrive/Desktop/Escritorio/Carpetas/Universidad/Nivel 6/BDA/Lab/Lab3/NO_HAY_QUESO"
   }
 }]]></component>
   <component name="RecentsManager">
