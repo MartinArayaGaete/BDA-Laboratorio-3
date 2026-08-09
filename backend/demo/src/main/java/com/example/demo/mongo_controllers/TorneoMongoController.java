@@ -72,4 +72,14 @@ public class TorneoMongoController {
     }
 
 
+    @PutMapping("/{id}/siguiente-ronda")
+    public ResponseEntity<?> siguienteRonda(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(service.siguienteRonda(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
 }

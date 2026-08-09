@@ -188,4 +188,34 @@ public class TorneoMongoService {
             posicion++;
         }
     }
+
+    public RondaDocument siguienteRonda(String torneoId) {
+        TorneoDocument torneo = findById(torneoId);
+
+        if (!"IN_COURSE".equals(torneo.getEstado())) {
+            throw new IllegalArgumentException("El torneo no está en curso");
+        }
+
+        List<RondaDocument> rondas = rondaMongoRepo.findByTorneoIdOrderByNumeroRondaAsc(torneoId);
+
+        // Finalizar ronda actual
+        RondaDocument rondaActual = rondas.stream()
+                .filter(r -> "IN_COURSE".equals(r.getEstado()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No hay ronda en curso"));
+        rondaActual.setEstado("FINISHED");
+        rondaMongoRepo.save(rondaActual);
+
+        // Iniciar siguiente ronda
+        RondaDocument siguiente = rondas.stream()
+                .filter(r -> "PENDIENTE".equals(r.getEstado()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No hay más rondas"));
+        siguiente.setEstado("IN_COURSE");
+        siguiente.setFechaInicio(LocalDateTime.now());
+
+        return rondaMongoRepo.save(siguiente);
+    }
+
+
 }

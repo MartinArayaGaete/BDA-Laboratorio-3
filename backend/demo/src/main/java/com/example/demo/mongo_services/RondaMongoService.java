@@ -54,4 +54,11 @@ public class RondaMongoService {
         }
         repository.deleteById(id);
     }
+
+
+    public RondaDocument asignarZonaAmbiental(String id, Long postgisZonaId) {
+        RondaDocument ronda = findById(id);
+        ronda.setPostgisZonaId(postgisZonaId);
+        return repository.save(ronda);
+    }
 }

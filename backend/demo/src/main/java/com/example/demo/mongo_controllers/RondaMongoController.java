@@ -62,4 +62,14 @@ public class RondaMongoController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}/zona-ambiental")
+    public ResponseEntity<?> asignarZonaAmbiental(@PathVariable String id, @RequestBody Map<String, Long> body) {
+        try {
+            Long idZonaAmbiental = body.get("idZonaAmbiental");
+            return ResponseEntity.ok(service.asignarZonaAmbiental(id, idZonaAmbiental));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

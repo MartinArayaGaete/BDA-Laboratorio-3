@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas" />
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas">
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RankingVivoMongoController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/RankingVivoMongoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RankingVivoMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,19 +50,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "git-widget-placeholder": "previo__a__la__explosion",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/josej/OneDrive/Desktop/Escritorio/Carpetas/Universidad/Nivel 6/BDA/Lab/Lab3/NO_HAY_QUESO"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;previo__a__la__explosion&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/josej/OneDrive/Desktop/Escritorio/Carpetas/Universidad/Nivel 6/BDA/Lab/Lab3/NO_HAY_QUESO&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\josej\OneDrive\Desktop\Escritorio\Carpetas\Universidad\Nivel 6\BDA\Lab\Lab3\aweonamiento\database\sql" />
