@@ -18,7 +18,8 @@ export default function Sidebar() {
         { path: "/admin", label: "Dashboard" },
         { path: "/admin/torneos", label: "Torneos" },
         { path: "/admin/usuarios", label: "Usuarios" },
-        { path: "/admin/categorias", label: "Categorías" },
+        { path: "/admin/categorias/distancia", label: "Categorías de Distancia" },
+        { path: "/admin/categorias/diana", label: "Categorías de Diana" },
         { path: "/admin/logs", label: "Auditoría" },
         { path: "/admin/estadisticas", label: "Estadísticas" },
       ]

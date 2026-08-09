@@ -1,6 +1,6 @@
 import api from "./api";
 
-const categoriaService = {
+const categoriaServicePuntajes = {
   obtenerTodas: async () => {
     const response = await api.get("/categorias");
     return response.data;
@@ -27,4 +27,4 @@ const categoriaService = {
   },
 };
 
-export default categoriaService;
+export default categoriaServicePuntajes;

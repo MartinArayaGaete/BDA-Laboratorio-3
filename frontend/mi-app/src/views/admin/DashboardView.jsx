@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import torneoService from "../../api/apiTorneos.js";
 import usuarioService from "../../api/apiUsuarios.js";
-import categoriaService from "../../api/apiCategorias.js";
+import categoriaService from "../../api/apiCategoriasDistancias.js";
 import logsService from "../../api/apiLogs.js";
 import StatsCards from "../../components/admin/StatsCards.jsx";
 import LoadingSpinner from "../../components/common/LoadingSpinner.jsx";

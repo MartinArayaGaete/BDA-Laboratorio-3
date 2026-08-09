@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import categoriaService from "../../api/apiCategorias.js";
+import categoriaServicePuntajes from "../../api/apiCategoriasPuntajes.js";
 
-export default function TablaCategorias({
+export default function TablaCategoriasPuntajes({
   categorias,
   onCategoriaActualizada,
 }) {
@@ -10,7 +10,7 @@ export default function TablaCategorias({
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     nombreCategoria: "",
-    distanciaTiro: "",
+    puntajeMinimo: "",
   });
   const [guardando, setGuardando] = useState(false);
 
@@ -18,7 +18,7 @@ export default function TablaCategorias({
     setEditando(categoria);
     setFormData({
       nombreCategoria: categoria.nombreCategoria,
-      distanciaTiro: categoria.distanciaTiro ?? "",
+      puntajeMinimo: categoria.puntajeMinimo ?? "",
     });
     setShowModal(true);
   };
@@ -34,16 +34,16 @@ export default function TablaCategorias({
       return;
     }
 
-    const distanciaNumerica =
-      formData.distanciaTiro === "" || formData.distanciaTiro === null
+    const puntajeMinimoNumerico =
+      formData.puntajeMinimo === "" || formData.puntajeMinimo === null
         ? null
-        : Number(formData.distanciaTiro);
+        : Number(formData.puntajeMinimo);
 
     setGuardando(true);
     try {
-      await categoriaService.actualizarCategoria(editando.idCategoria, {
+      await categoriaServicePuntajes.actualizarCategoria(editando.idCategoria, {
         nombreCategoria: formData.nombreCategoria.trim(),
-        distanciaTiro: distanciaNumerica,
+        puntajeMinimo: puntajeMinimoNumerico,
       });
       cerrarModal();
       if (onCategoriaActualizada) onCategoriaActualizada();
@@ -58,7 +58,7 @@ export default function TablaCategorias({
     if (!window.confirm(`¿Eliminar la categoría "${nombreCategoria}"?`)) return;
     setEliminando(idCategoria);
     try {
-      await categoriaService.eliminarCategoria(idCategoria);
+      await categoriaServicePuntajes.eliminarCategoria(idCategoria);
       if (onCategoriaActualizada) onCategoriaActualizada();
     } catch (err) {
       alert("Error al eliminar la categoría");
@@ -79,7 +79,7 @@ export default function TablaCategorias({
                 ID
               </th>
               <th className="text-white">Nombre</th>
-              <th className="text-white">Distancia (m)</th>
+              <th className="text-white">Puntaje Mínimo</th>
               <th className="text-white" style={{ width: "150px" }}>
                 Acciones
               </th>
@@ -91,9 +91,9 @@ export default function TablaCategorias({
                 <td className="text-muted">{categoria.idCategoria}</td>
                 <td className="fw-bold">{categoria.nombreCategoria}</td>
                 <td className="text-muted">
-                  {categoria.distanciaTiro == null
+                  {categoria.puntajeMinimo == null
                     ? "—"
-                    : `${categoria.distanciaTiro} m`}
+                    : `${categoria.puntajeMinimo}`}
                 </td>
                 <td>
                   <button
@@ -154,18 +154,18 @@ export default function TablaCategorias({
                 </div>
                 <div className="mb-3">
                   <label className="form-label fw-bold text-dark">
-                    Distancia de Tiro (m)
+                    Puntaje Mínimo
                   </label>
                   <input
                     type="number"
                     className="form-control"
                     min="0"
                     step="1"
-                    value={formData.distanciaTiro}
+                    value={formData.puntajeMinimo}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        distanciaTiro: e.target.value,
+                        puntajeMinimo: e.target.value,
                       })
                     }
                   />

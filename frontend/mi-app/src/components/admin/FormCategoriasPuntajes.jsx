@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import categoriaService from "../../api/apiCategorias.js";
+import categoriaServicePuntajes from "../../api/apiCategoriasPuntajes.js";
 
-export default function FormCategoria({ onCategoriaCreada }) {
+export default function FormCategoriasPuntajes({ onCategoriaCreada }) {
   const [nombreCategoria, setNombreCategoria] = useState("");
-  const [distanciaTiro, setDistanciaTiro] = useState("");
+  const [puntuaciónMinima, setPuntuaciónMinima] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -18,24 +18,27 @@ export default function FormCategoria({ onCategoriaCreada }) {
       return;
     }
 
-    const distanciaNumerica = distanciaTiro.trim() === "" ? null : Number(distanciaTiro);
+    const puntuaciónMinimaNumerica = puntuaciónMinima.trim() === "" ? null : Number(puntuaciónMinima);
 
-    if (distanciaTiro.trim() !== "" && (!Number.isInteger(distanciaNumerica) || distanciaNumerica < 0)) {
-      setError("La distancia de tiro debe ser un número entero mayor o igual a 0");
+    if (puntuaciónMinima.trim() !== "" && (!Number.isInteger(puntuaciónMinimaNumerica) || puntuaciónMinimaNumerica < 0)) {
+      setError("La puntuación mínima debe ser un número entero mayor o igual a 0");
+      return;
+    } else if (puntuaciónMinima.trim() !== "" && (!Number.isInteger(puntuaciónMinimaNumerica) || puntuaciónMinimaNumerica > 10)){
+      setError("La puntuación mínima debe ser un número entero menor o igual a 10");
       return;
     }
 
     setGuardando(true);
     try {
-      await categoriaService.crearCategoria({
+      await categoriaServicePuntajes.crearCategoria({
         nombreCategoria: nombreCategoria.trim(),
-        distanciaTiro: distanciaNumerica,
+        puntuaciónMinima: puntuaciónMinimaNumerica,
       });
 
-      const mensajeDistancia = distanciaNumerica === null ? "" : ` con distancia de tiro de ${distanciaNumerica} m`;
-      setSuccess(`Categoría "${nombreCategoria.trim()}" creada exitosamente${mensajeDistancia}`);
+      const mensajePuntuacion = puntuaciónMinimaNumerica === null ? "" : ` con puntuación mínima de ${puntuaciónMinimaNumerica}`;
+      setSuccess(`Categoría "${nombreCategoria.trim()}" creada exitosamente${mensajePuntuacion}`);
       setNombreCategoria("");
-      setDistanciaTiro("");
+      setPuntuaciónMinima("");
       if (onCategoriaCreada) onCategoriaCreada();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -60,22 +63,22 @@ export default function FormCategoria({ onCategoriaCreada }) {
             <input
               type="text"
               className="form-control"
-              placeholder="Ej: Recurvo, Compuesto, Tradicional"
+              placeholder="Ej: General, Avanzado, Profesional, etc."
               value={nombreCategoria}
               onChange={(e) => setNombreCategoria(e.target.value)}
               disabled={guardando}
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Distancia de tiro (m)</label>
+            <label className="form-label">Puntuación mínima</label>
             <input
               type="number"
               className="form-control"
               min="0"
               step="1"
-              placeholder="Ej: 70"
-              value={distanciaTiro}
-              onChange={(e) => setDistanciaTiro(e.target.value)}
+              placeholder="Ej: 0, 1, 2, etc."
+              value={puntuaciónMinima}
+              onChange={(e) => setPuntuaciónMinima(e.target.value)}
               disabled={guardando}
             />
           </div>

@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
-import categoriaService from "../../api/apiCategorias.js";
-import TablaCategorias from "../../components/admin/TablaCategorias.jsx";
-import FormCategoria from "../../components/admin/FormCategoria.jsx";
+import categoriaServicePuntajes from "../../api/apiCategoriasPuntajes.js";
+import TablaCategoriasPuntajes from "../../components/admin/TablaCategoriasPuntajes.jsx";
+import FormCategoriasPuntajes from "../../components/admin/FormCategoriasPuntajes.jsx";
 import LoadingSpinner from "../../components/common/LoadingSpinner.jsx";
 
-export default function CategoriasView() {
+export default function CategoriasPuntajesView() {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const cargarCategorias = useCallback(() => {
     setLoading(true);
-    categoriaService
+    categoriaServicePuntajes
       .obtenerTodas()
       .then((data) => {
         setCategorias(data);
@@ -30,12 +30,12 @@ export default function CategoriasView() {
   return (
     <div>
       <h2 className="mb-4" color="black">
-        Gestión de Categorías
+        Gestión de categorías de diana
       </h2>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <FormCategoria onCategoriaCreada={cargarCategorias} />
+      <FormCategoriasPuntajes onCategoriaCreada={cargarCategorias} />
 
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
@@ -48,7 +48,7 @@ export default function CategoriasView() {
               No hay categorías registradas
             </p>
           ) : (
-            <TablaCategorias
+            <TablaCategoriasPuntajes
               categorias={categorias}
               onCategoriaEliminada={cargarCategorias}
             />
