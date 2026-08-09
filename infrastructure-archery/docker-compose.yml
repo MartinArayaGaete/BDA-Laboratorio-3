@@ -85,6 +85,7 @@ services:
   mongo-archery:
     image: mongo:7.0
     container_name: mongo-archery
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all" ]
     environment:
       MONGO_INITDB_DATABASE: "archerydb"
     volumes:
@@ -99,17 +100,47 @@ services:
       timeout: 5s
       retries: 5
 
+  mongo-archery-secondary:
+    image: mongo:7.0
+    container_name: mongo-archery-secondary
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all" ]
+    volumes:
+      - mongo_secondary_data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - archeryNetwork
+    healthcheck:
+      test: [ "CMD-SHELL", "mongosh --quiet --eval 'try { quit(rs.status().myState === 2 ? 0 : 1) } catch (error) { quit(1) }'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mongo-replica-set-init:
+    image: mongo:7.0
+    container_name: mongo-replica-set-init
+    depends_on:
+      - mongo-archery
+      - mongo-archery-secondary
+    volumes:
+      - ./mongo/init-replica-set.sh:/scripts/init-replica-set.sh:ro
+    entrypoint: [ "/bin/bash", "/scripts/init-replica-set.sh" ]
+    restart: "no"
+    networks:
+      - archeryNetwork
+
   mongo-express:
     image: mongo-express:latest
     container_name: mongo-express
     environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-archery:27017"
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0"
       ME_CONFIG_BASICAUTH_USERNAME: "admin"
       ME_CONFIG_BASICAUTH_PASSWORD: "12345"
     ports:
       - "8081:8081"
     depends_on:
-      - mongo-archery
+      mongo-replica-set-init:
+        condition: service_completed_successfully
     networks:
       - archeryNetwork
 
@@ -118,6 +149,7 @@ volumes:
     name: archeryPostgresData
     driver: local
   mongo_data:
+  mongo_secondary_data:
 
 networks:
   archeryNetwork:
