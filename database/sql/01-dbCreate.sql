@@ -124,6 +124,14 @@ CREATE TABLE IF NOT EXISTS flecha (
     FOREIGN KEY (id_puntaje_ronda) REFERENCES puntaje_ronda(id_puntaje_ronda) ON DELETE CASCADE
 );
 
+ -- lab 3
+CREATE TABLE IF NOT EXISTS categoria_diana (
+    id_categoria_diana BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre_categoria_diana VARCHAR(80) NOT NULL,
+    puntaje_minimo INT NOT NULL DEFAULT 0,
+    puntaje_maximo INT NOT NULL DEFAULT 10
+);
+
 
 -- 3. ÍNDICES TRADICIONALES (B-Tree)
 CREATE INDEX idx_torneo_categoria ON torneo(id_categoria);

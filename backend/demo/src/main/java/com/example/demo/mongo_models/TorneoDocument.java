@@ -31,13 +31,17 @@ public class TorneoDocument {
     private int plazasMax;
     private int plazasActual = 0;
 
-    private CategoriaEmbedded categoria;
+    private Long categoriaDistanciaId;
+    private CategoriaDistanciaEmbedded categoriaDistancia;
+
+    private Long categoriaDianaId;
+    private CategoriaDianaEmbedded categoriaDiana;
     private List<ZonaAmbientalEmbedded> zonasAmbientales = new ArrayList<>();
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CategoriaEmbedded {
+    public static class CategoriaDistanciaEmbedded {
         private String nombre = "RECURVO";
         private int distanciaTiro = 18;
     }
@@ -49,5 +53,14 @@ public class TorneoDocument {
         private Long idZonaAmbiental;
         private Long idCategoriaAmbiental;
         private String categoriaAmbiental;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoriaDianaEmbedded {
+        private String nombre = "ADULTO";
+        private int puntajeMinimo = 5;
+        private int puntajeMaximo = 10;
     }
 }
