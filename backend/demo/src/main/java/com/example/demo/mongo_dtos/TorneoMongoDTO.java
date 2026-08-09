@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class TorneoMongoDTO {
 
     private String nombre;
+    private Long sqlIdTorneo;
     private LocalDate fechaInicio;
     private LocalDate fechaTermino;
     private Integer plazasMax = 20; // si es null queda en 20 plazas

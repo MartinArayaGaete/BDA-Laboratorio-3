@@ -9,6 +9,7 @@ import com.example.demo.mongo_repositories.TorneoMongoRepository;
 import com.example.demo.mongo_repositories.RondaMongoRepository;
 import com.example.demo.mongo_repositories.PuntuacionMongoRepository;
 import com.example.demo.mongo_repositories.ParticipacionMongoRepository;
+import com.example.demo.repositories.TorneoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,22 +25,29 @@ public class TorneoMongoService {
     private final RondaMongoRepository rondaMongoRepo;
     private final PuntuacionMongoRepository puntuacionMongoRepo;
     private final ParticipacionMongoRepository participacionMongoRepo;
+    private final TorneoRepository torneoSqlRepo;
 
     public TorneoMongoService(TorneoMongoRepository torneoMongoRepo,
                               RondaMongoRepository rondaMongoRepo,
                               PuntuacionMongoRepository puntuacionMongoRepo,
-                              ParticipacionMongoRepository participacionMongoRepo) {
+                              ParticipacionMongoRepository participacionMongoRepo,
+                              TorneoRepository torneoSqlRepo) {
         this.torneoMongoRepo = torneoMongoRepo;
         this.rondaMongoRepo = rondaMongoRepo;
         this.puntuacionMongoRepo = puntuacionMongoRepo;
         this.participacionMongoRepo = participacionMongoRepo;
+        this.torneoSqlRepo = torneoSqlRepo;
     }
 
     public TorneoDocument crear(TorneoMongoDTO dto) {
         if (torneoMongoRepo.existsByNombre(dto.getNombre())) {
             throw new IllegalArgumentException("Ya existe un torneo con ese nombre");
         }
-        return torneoMongoRepo.save(TorneoMongoMapper.toDocument(dto));
+        TorneoDocument saved = torneoMongoRepo.save(TorneoMongoMapper.toDocument(dto));
+        if (dto.getSqlIdTorneo() != null) {
+            return sincronizarZonasAmbientalesDesdeSql(saved.getId(), dto.getSqlIdTorneo());
+        }
+        return saved;
     }
 
     public List<TorneoDocument> findAll() {
@@ -53,6 +61,25 @@ public class TorneoMongoService {
 
     public List<TorneoDocument> findByEstado(String estado) {
         return torneoMongoRepo.findByEstado(estado);
+    }
+
+    public TorneoDocument sincronizarZonasAmbientalesDesdeSql(String mongoTorneoId, Long sqlIdTorneo) {
+        TorneoDocument torneo = torneoMongoRepo.findById(mongoTorneoId)
+                .orElseThrow(() -> new IllegalArgumentException("Torneo Mongo no encontrado: " + mongoTorneoId));
+
+        List<Map<String, Object>> zonasSql = torneoSqlRepo.obtenerClimasPorTorneo(sqlIdTorneo);
+
+        List<TorneoDocument.ZonaAmbientalEmbedded> zonas = zonasSql.stream()
+            .map(row -> new TorneoDocument.ZonaAmbientalEmbedded(
+                row.get("id_zona_ambiental") == null ? null : ((Number) row.get("id_zona_ambiental")).longValue(),
+                row.get("id_categoria_ambiental") == null ? null : ((Number) row.get("id_categoria_ambiental")).longValue(),
+                row.get("categoria_ambiental") == null ? null : row.get("categoria_ambiental").toString()
+            ))
+            .collect(Collectors.toList());
+
+        torneo.setSqlIdTorneo(sqlIdTorneo);
+        torneo.setZonasAmbientales(zonas);
+        return torneoMongoRepo.save(torneo);
     }
 
     public TorneoDocument iniciarTorneo(String id) {

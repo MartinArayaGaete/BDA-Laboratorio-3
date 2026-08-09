@@ -183,7 +183,7 @@ public class TorneoRepository {
 
     public List<Map<String, Object>> obtenerClimasPorTorneo(Long idTorneo) {
         String sql = """
-            SELECT DISTINCT sa.id_zona_ambiental, ca.categoria_ambiental
+            SELECT DISTINCT sa.id_zona_ambiental, ca.id_categoria_ambiental, ca.categoria_ambiental
             FROM torneo t
             JOIN sectores_ambientales sa ON ST_Intersects(t.espacio_torneo, sa.territorio)
             JOIN categoria_ambiental ca ON sa.id_categoria_ambiental = ca.id_categoria_ambiental

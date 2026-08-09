@@ -10,4 +10,6 @@ public interface TorneoMongoRepository extends MongoRepository<TorneoDocument, S
 
     List<TorneoDocument> findByEstado(String estado);
     boolean existsByNombre(String nombre);
+    boolean existsBySqlIdTorneo(Long sqlIdTorneo);
+    java.util.Optional<TorneoDocument> findBySqlIdTorneo(Long sqlIdTorneo);
 }

@@ -8,6 +8,7 @@ public class TorneoMongoMapper {
     public static TorneoDocument toDocument(TorneoMongoDTO dto) {
         TorneoDocument doc = new TorneoDocument();
         doc.setNombre(dto.getNombre());
+        doc.setSqlIdTorneo(dto.getSqlIdTorneo());
         doc.setFechaInicio(dto.getFechaInicio());
         doc.setFechaTermino(dto.getFechaTermino());
         doc.setPlazasMax(dto.getPlazasMax() != null ? dto.getPlazasMax() : 20);
