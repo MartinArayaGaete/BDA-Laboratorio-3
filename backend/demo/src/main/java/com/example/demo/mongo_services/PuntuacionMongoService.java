@@ -70,13 +70,13 @@ public class PuntuacionMongoService {
         return torneo;
     }
 
-    private void validarRondaEnCurso(String rondaId, String torneoId) {
+    private void validarRondaConZona(String rondaId, String torneoId) {
         var ronda = rondaMongoRepo.findById(rondaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ronda no encontrada"));
-        if (!"IN_COURSE".equals(ronda.getEstado()))
-            throw new IllegalArgumentException("La ronda no está en curso");
         if (!ronda.getTorneoId().equals(torneoId))
             throw new IllegalArgumentException("La ronda no pertenece a este torneo");
+        if (ronda.getPostgisZonaId() == null)
+            throw new IllegalArgumentException("Debe asignar una zona climática a la ronda antes de registrar puntajes");
     }
 
     private void validarInscripcion(String torneoId, Long usuarioId) {
@@ -170,7 +170,7 @@ public class PuntuacionMongoService {
         validarDatosEntrada(doc);
         Usuario usuario = validarUsuario(doc.getUsuarioId());
         TorneoDocument torneo = validarTorneoEnCurso(doc.getTorneoId());
-        validarRondaEnCurso(doc.getRondaId(), doc.getTorneoId());
+        validarRondaConZona(doc.getRondaId(), doc.getTorneoId());
         validarInscripcion(doc.getTorneoId(), doc.getUsuarioId());
         return ejecutarUpsert(doc, usuario, torneo);
     }
@@ -180,7 +180,7 @@ public class PuntuacionMongoService {
         validarDatosEntrada(doc);
         Usuario usuario = validarUsuario(doc.getUsuarioId());
         TorneoDocument torneo = validarTorneoEnCurso(doc.getTorneoId());
-        validarRondaEnCurso(doc.getRondaId(), doc.getTorneoId());
+        validarRondaConZona(doc.getRondaId(), doc.getTorneoId());
         validarInscripcion(doc.getTorneoId(), doc.getUsuarioId());
         validarReglamentoCategoria(doc, torneo);
         validarPosicionArquero(doc, torneo);
