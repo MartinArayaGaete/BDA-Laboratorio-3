@@ -75,8 +75,12 @@ public class PuntuacionMongoService {
                 .orElseThrow(() -> new IllegalArgumentException("Ronda no encontrada"));
         if (!ronda.getTorneoId().equals(torneoId))
             throw new IllegalArgumentException("La ronda no pertenece a este torneo");
-        if (ronda.getPostgisZonaId() == null)
-            throw new IllegalArgumentException("Debe asignar una zona climática a la ronda antes de registrar puntajes");
+
+        // Si no tiene zona climática asignada, se asigna automáticamente ID 0 (Normal)
+        if (ronda.getPostgisZonaId() == null) {
+            ronda.setPostgisZonaId(0L);
+            rondaMongoRepo.save(ronda);
+        }
     }
 
     private void validarInscripcion(String torneoId, Long usuarioId) {
