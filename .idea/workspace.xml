@@ -4,14 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas">
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Commit torneo ya no tiene embebida zona ambiental">
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/GeospatialMongoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/TorneoDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/TorneoDocument.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/TorneoMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/TorneoMongoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/PuntuacionMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/PuntuacionMongoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/PuntuacionDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/PuntuacionDocument.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/ParticipacionMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/ParticipacionMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" beforeDir="false" afterPath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +116,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786227352156</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Commit torneo ya no tiene embebida zona ambiental">
+      <option name="closed" value="true" />
+      <created>1786320371785</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1786320371785</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -133,6 +143,7 @@
     <MESSAGE value="Commit RondaMongo CRUD" />
     <MESSAGE value="Commit ParticipacionMongo CRUD" />
     <MESSAGE value="Puntuaciones + mover carpetas" />
-    <option name="LAST_COMMIT_MESSAGE" value="Puntuaciones + mover carpetas" />
+    <MESSAGE value="Commit torneo ya no tiene embebida zona ambiental" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit torneo ya no tiene embebida zona ambiental" />
   </component>
 </project>

@@ -61,4 +61,7 @@ public class RondaMongoService {
         ronda.setPostgisZonaId(postgisZonaId);
         return repository.save(ronda);
     }
+
+
+
 }

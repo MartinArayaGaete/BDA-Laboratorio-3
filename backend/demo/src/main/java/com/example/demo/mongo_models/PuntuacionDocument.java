@@ -27,6 +27,7 @@ public class PuntuacionDocument {
     private String nombreTorneo;
     private Integer numeroRonda;
     private String categoria;
+    private Integer puntajeMinimo;
     private List<Integer> flechas = new ArrayList<>();
     private Integer puntajeTotal = 0;
     private String posicionArquero;

@@ -95,22 +95,12 @@ public class PuntuacionMongoController {
 
 
     @PostMapping
-    public ResponseEntity<?> createOrUpdate(
-            @RequestBody PuntuacionDocument doc) {
-
+    public ResponseEntity<?> createOrUpdate(@RequestBody PuntuacionDocument doc) {
         try {
-            PuntuacionDocument saved =
-                    service.guardarOActualizar(doc);
-
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(saved);
-
+            PuntuacionDocument saved = service.guardarOActualizarConReglamento(doc);  // ← Cambiar aquí
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
