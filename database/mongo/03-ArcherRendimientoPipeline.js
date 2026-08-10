@@ -13,46 +13,84 @@ const pipeline = [
     }
   },
   {
-    $group: {
-      _id: {
-        torneoId: "$torneoId",
-        categoria: "$categoria",
-        usuarioId: "$usuarioId"
-      },
-      nombreTorneo: { $first: "$nombreTorneo" },
-      nombreArquero: { $first: "$nombreArquero" },
-      promedioPuntaje: { $avg: "$puntajeTotal" }, 
-      mejorRonda: {
-        $top: {
-          sortBy: { puntajeTotal: -1, numeroRonda: 1 },
-          output: {
-            numeroRonda: "$numeroRonda",
-            puntaje: "$puntajeTotal"
-          }
-        }
-      },
-      rondasRegistradas: { $sum: 1 }
-    }
-  },
-  {
-    $project: {
-      _id: 0,
-      torneoId: "$_id.torneoId",
-      nombreTorneo: 1,
-      categoria: "$_id.categoria",
-      usuarioId: "$_id.usuarioId",
-      nombreArquero: 1,
-      promedioPuntaje: 1,
-      mejorRonda: 1,
-      rondasRegistradas: 1
-    }
-  },
-  {
     $facet: {
-      detallePorArquero: [
+      rendimientoPorTorneo: [
+        {
+          $group: {
+            _id: {
+              torneoId: "$torneoId",
+              usuarioId: "$usuarioId"
+            },
+            nombreTorneo: { $first: "$nombreTorneo" },
+            nombreArquero: { $first: "$nombreArquero" },
+            promedioPuntaje: { $avg: "$puntajeTotal" },
+            mejorRonda: {
+              $top: {
+                sortBy: { puntajeTotal: -1, numeroRonda: 1 },
+                output: {
+                  numeroRonda: "$numeroRonda",
+                  puntaje: "$puntajeTotal"
+                }
+              }
+            },
+            rondasRegistradas: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            torneoId: "$_id.torneoId",
+            usuarioId: "$_id.usuarioId",
+            nombreTorneo: 1,
+            nombreArquero: 1,
+            promedioPuntaje: 1,
+            mejorRonda: 1,
+            rondasRegistradas: 1
+          }
+        },
         {
           $sort: {
             torneoId: 1,
+            promedioPuntaje: -1,
+            "mejorRonda.puntaje": -1,
+            usuarioId: 1
+          }
+        }
+      ],
+      rendimientoPorCategoria: [
+        {
+          $group: {
+            _id: {
+              categoria: "$categoria",
+              usuarioId: "$usuarioId"
+            },
+            nombreArquero: { $first: "$nombreArquero" },
+            promedioPuntaje: { $avg: "$puntajeTotal" },
+            mejorRonda: {
+              $top: {
+                sortBy: { puntajeTotal: -1, numeroRonda: 1 },
+                output: {
+                  numeroRonda: "$numeroRonda",
+                  puntaje: "$puntajeTotal"
+                }
+              }
+            },
+            rondasConsideradas: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            categoria: "$_id.categoria",
+            usuarioId: "$_id.usuarioId",
+            nombreArquero: 1,
+            promedioPuntaje: 1,
+            mejorRonda: 1,
+            rondasConsideradas: 1
+          }
+        },
+        {
+          $sort: {
             categoria: 1,
             promedioPuntaje: -1,
             "mejorRonda.puntaje": -1,
@@ -62,6 +100,17 @@ const pipeline = [
       ],
       distribucionPorRendimiento: [
         {
+          $group: {
+            _id: {
+              categoria: "$categoria",
+              usuarioId: "$usuarioId"
+            },
+            nombreArquero: { $first: "$nombreArquero" },
+            promedioPuntaje: { $avg: "$puntajeTotal" },
+            rondasConsideradas: { $sum: 1 }
+          }
+        },
+        {
           $bucket: {
             groupBy: "$promedioPuntaje",
             boundaries: [0, 15, 30, 45, 61],
@@ -70,14 +119,11 @@ const pipeline = [
               cantidadDesempenos: { $sum: 1 },
               arqueros: {
                 $push: {
-                  torneoId: "$torneoId",
-                  nombreTorneo: "$nombreTorneo",
-                  categoria: "$categoria",
-                  usuarioId: "$usuarioId",
+                  categoria: "$_id.categoria",
+                  usuarioId: "$_id.usuarioId",
                   nombreArquero: "$nombreArquero",
                   promedioPuntaje: "$promedioPuntaje",
-                  mejorRonda: "$mejorRonda",
-                  rondasRegistradas: "$rondasRegistradas"
+                  rondasConsideradas: "$rondasConsideradas"
                 }
               }
             }
