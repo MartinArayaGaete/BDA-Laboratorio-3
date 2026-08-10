@@ -292,15 +292,28 @@ export default function FormCrearTorneo({
           </div>
         )}
 
-        {(categoriasDistancia.length === 0 || categoriasPuntaje.length === 0) && (
+        {(categoriasDistancia.length === 0) && (
           <div className="alert alert-warning">
-            No hay categorias disponibles para crear el torneo.{" "}
+            No hay categorias de distancia disponibles para crear el torneo.{" "}
             <button
               type="button"
               className="btn btn-sm btn-outline-warning ms-2"
-              onClick={() => navigate("/admin/categorias")}
+              onClick={() => navigate("/admin/categorias/distancia")}
             >
-              Ir a Categorias
+              Ir a categorias de distancia
+            </button>
+          </div>
+        )}
+
+        {(categoriasPuntaje.length === 0) && (
+          <div className="alert alert-warning">
+            No hay categorias de diana disponibles para crear el torneo.{" "}
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-warning ms-2"
+              onClick={() => navigate("/admin/categorias/diana")}
+            >
+              Ir a categorias de diana
             </button>
           </div>
         )}
@@ -348,7 +361,7 @@ export default function FormCrearTorneo({
               </select>
             </div>
             <div className="col-md-3">
-              <label htmlFor="idCategoriaDiana" className="form-label fw-bold">Categoría de Puntaje / Diana *</label>
+              <label htmlFor="idCategoriaDiana" className="form-label fw-bold">Categoría de Diana / Puntaje *</label>
               <select
                 id="idCategoriaDiana"
                 className="form-select"
