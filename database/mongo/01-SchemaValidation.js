@@ -168,23 +168,6 @@ applyValidator("torneos", {
           bsonType: "int"
         }
       }
-    },
-    zonasAmbientales: {
-      bsonType: "array",
-      items: {
-        bsonType: "object",
-        properties: {
-          idZonaAmbiental: {
-            bsonType: "long"
-          },
-          idCategoriaAmbiental: {
-            bsonType: "long"
-          },
-          categoriaAmbiental: {
-            bsonType: "string"
-          }
-        }
-      }
     }
   }
 });
