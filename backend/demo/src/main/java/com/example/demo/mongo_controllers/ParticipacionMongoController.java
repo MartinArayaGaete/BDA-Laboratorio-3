@@ -74,4 +74,5 @@ public class ParticipacionMongoController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
 }
