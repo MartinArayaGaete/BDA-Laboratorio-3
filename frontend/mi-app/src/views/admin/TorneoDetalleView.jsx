@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import torneoService from "../../api/apiTorneos.js";
 import apiParticipaciones from "../../api/apiParticipaciones.js";
-import categoriaService from "../../api/apiCategorias.js";
+import categoriaServiceDistancias from "../../api/apiCategoriasDistancias.js";
 import api from "../../api/api.js";
 import TorneoCabecera from "../../components/admin/TorneoCabecera.jsx";
 import ListaParticipantes from "../../components/admin/ListaParticipantes.jsx";
@@ -129,7 +129,7 @@ export default function TorneoDetalleView() {
       setDistanciaTiroM(null);
       return undefined;
     }
-    categoriaService
+    categoriaServiceDistancias
       .obtenerPorId(torneo.idCategoria)
       .then((categoria) => {
         const distancia = Number(categoria?.distanciaTiro);

@@ -34,8 +34,8 @@ services:
     depends_on:
       database-archery:
         condition: service_healthy
-      mongo-archery:
-        condition: service_healthy
+      mongo-replica-set-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - archeryNetwork
@@ -57,10 +57,11 @@ services:
     restart: unless-stopped
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-archeryUser} -d ${POSTGRES_DB:-archeryDb}",
-        ]
+        - CMD-SHELL
+        - >-
+          pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" &&
+          psql -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" -tAc
+          "SELECT 1 FROM usuario WHERE rut = '1111111-1'" | grep -q 1
       interval: 10s
       timeout: 5s
       retries: 5
@@ -120,12 +121,17 @@ services:
     image: mongo:7.0
     container_name: mongo-replica-set-init
     depends_on:
-      - mongo-archery
-      - mongo-archery-secondary
+      database-archery:
+        condition: service_healthy
+      mongo-archery:
+        condition: service_started
+      mongo-archery-secondary:
+        condition: service_started
     entrypoint:
       - bash
       - -c
       - |
+        set -euo pipefail
         until mongosh --host mongo-archery --quiet --eval "quit(db.adminCommand('ping').ok ? 0 : 1)"; do sleep 2; done
         until mongosh --host mongo-archery-secondary --quiet --eval "quit(db.adminCommand('ping').ok ? 0 : 1)"; do sleep 2; done
         mongosh --host mongo-archery --quiet --eval '
@@ -133,9 +139,11 @@ services:
         if (error.codeName !== "NotYetInitialized") { throw error; }
         rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongo-archery:27017", priority: 2 }, { _id: 1, host: "mongo-archery-secondary:27017", priority: 1 }] }); }'
         until mongosh --host mongo-archery --quiet --eval 'quit(rs.status().members.every(m => m.health === 1) ? 0 : 1)'; do sleep 2; done
+        until mongosh --host mongo-archery --quiet --eval 'quit(db.hello().isWritablePrimary ? 0 : 1)'; do sleep 2; done
         echo "Replica Set ready"
         mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/01-SchemaValidation.js
         mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/02-Indexes.js
+        mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/04-SeedData.js
         mongosh "mongodb://mongo-archery:27017,mongo-archery-secondary:27017/archerydb?replicaSet=rs0" /scripts/configs/03-ArcherRendimientoPipeline.js
     volumes:
       - ../database/mongo:/scripts/configs:ro

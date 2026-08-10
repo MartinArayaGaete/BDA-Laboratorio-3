@@ -11,7 +11,7 @@
 
 ---
 
-Plataforma web desarrollada por el **Grupo 1** para administrar arqueros, categorías, torneos, rondas y puntuaciones, integrando una arquitectura completa con **frontend**, **backend**, **base de datos PostgreSQL** y **Docker Compose**.
+Plataforma web desarrollada por el **Grupo 1** para administrar arqueros, categorías, torneos, rondas y puntuaciones, integrando una arquitectura completa con **frontend**, **backend**, **PostgreSQL/PostGIS**, **MongoDB Replica Set** y **Docker Compose**.
 
 La aplicación fue diseñada para cubrir un flujo real de competencia deportiva, con roles diferenciados para **Administrador** y **Arquero**, autenticación basada en **JWT** y reglas de negocio reforzadas directamente en la base de datos mediante **procedimientos almacenados, triggers, vistas materializadas e índices**.
 
@@ -19,7 +19,7 @@ La aplicación fue diseñada para cubrir un flujo real de competencia deportiva,
 
 Este proyecto responde al laboratorio de manera directa en los siguientes puntos:
 
-- **Arquitectura multi-capa**: frontend React, backend Spring Boot y base de datos PostgreSQL.
+- **Arquitectura multi-capa**: frontend React, backend Spring Boot, PostgreSQL/PostGIS y MongoDB.
 - **Seguridad JWT + RBAC**: las rutas y acciones se separan por rol, distinguiendo administrador y arquero.
 - **SQL avanzado**: procedimientos almacenados, triggers, vista materializada e índices aplicados al dominio del torneo.
 - **Sin ORM**: el backend trabaja con acceso directo a la base de datos usando JDBC.
@@ -97,7 +97,7 @@ Rutas principales expuestas por el backend:
 | --- | --- | --- |
 | Frontend | React 19, Vite, React Router, Axios, Bootstrap 5 | Interfaz de usuario y navegación por rol |
 | Backend | Java 17, Spring Boot, Spring Security, JDBC, JWT | API REST, autenticación y lógica de negocio |
-| Base de datos | PostgreSQL 16 | Persistencia, procedimientos, triggers, vistas e índices |
+| Base de datos | PostgreSQL/PostGIS 16 y MongoDB 7 Replica Set | Datos relacionales/geoespaciales y documentos operacionales |
 | Orquestación | Docker Compose | Levantar todo el stack de forma reproducible |
 
 ## Estructura del proyecto
@@ -139,6 +139,9 @@ Ese comando levanta:
 - el **backend** en `http://localhost:8080`
 - **PostgreSQL** en `localhost:5432`
 - **pgAdmin** en `http://localhost:5050`
+- **MongoDB primario** en `localhost:27017`
+- **MongoDB secundario** en `localhost:27018`
+- **Mongo Express** en `http://localhost:8081`
 
 ### Opción con Docker Desktop
 
@@ -150,11 +153,36 @@ Si usas Docker Desktop, puedes abrir el proyecto y ejecutar el mismo `docker com
 docker compose -f infrastructure-archery/docker-compose.yml down
 ```
 
-Si además quieres eliminar los datos persistidos en el volumen de PostgreSQL, usa:
+Si además quieres eliminar todos los datos persistidos y volver a ejecutar la población inicial, usa:
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml down -v
 ```
+
+> **Advertencia:** `down -v` elimina tanto la base PostgreSQL como los dos volúmenes de MongoDB.
+
+## Población inicial de datos
+
+En una instalación limpia, Docker ejecuta automáticamente:
+
+1. Los scripts `database/sql/01-*.sql` a `database/sql/11-testData.sql` en PostgreSQL.
+2. La creación del Replica Set de MongoDB.
+3. Los validadores, índices y `database/mongo/04-SeedData.js`.
+4. El pipeline de estadísticas sobre los documentos ya cargados.
+
+La población usa identificadores deterministas compartidos entre ambos motores. Incluye 13 usuarios, 4 categorías de distancia, 3 categorías de diana, 5 torneos, 15 rondas, 35 participaciones, 90 puntuaciones de ronda y 540 flechas, además de zonas PostGIS, podios y ranking en vivo.
+
+Los `_id` de torneos y rondas MongoDB reutilizan como texto el ID correspondiente de PostgreSQL. Los estados se traducen como `NOT_STARTED → PENDIENTE`, `IN_COURSE → IN_COURSE` y `COMPLETED → FINISHED`.
+
+Para revisar que ambos seeders terminaron correctamente:
+
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml logs database-archery mongo-replica-set-init
+docker compose -f infrastructure-archery/docker-compose.yml exec -T database-archery sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT COUNT(*) AS usuarios FROM usuario;"'
+docker compose -f infrastructure-archery/docker-compose.yml exec -T mongo-archery mongosh --quiet --eval 'db.getSiblingDB("archerydb").puntuaciones.countDocuments()'
+```
+
+Los scripts verifican referencias, totales, posiciones y duplicados antes de declarar la carga como exitosa. PostgreSQL solo ejecuta `/docker-entrypoint-initdb.d` cuando su volumen está vacío; para una reconstrucción completa se debe usar el comando `down -v` anterior.
 
 ## Comandos útiles
 
@@ -209,15 +237,16 @@ La vista de leaderboard permite consultar el rendimiento general y el historial 
 
 | Criterio | Ubicación | Estado |
 | --- | --- | --- |
-| Script de creación de la BD | `database/01-dbCreate.sql` | ✓ |
-| Dump con datos de prueba | `database/05-loadData.sql` | ✓ |
+| Script de creación de PostgreSQL | `database/sql/01-dbCreate.sql` | ✓ |
+| Población de PostgreSQL | `database/sql/11-testData.sql` | ✓ |
+| Validadores, índices y población MongoDB | `database/mongo/` | ✓ |
 | Archivo README.md con instrucciones | `README.md` (este archivo) | ✓ |
 
 ### Aplicación
 
 | Criterio | Descripción | Estado |
 | --- | --- | --- |
-| Sistema consistente REST + Web + PostgreSQL | Frontend React, Backend Spring Boot, DB PostgreSQL en Docker Compose | ✓ |
+| Sistema consistente REST + Web + PostgreSQL + MongoDB | Frontend React, Backend Spring Boot y ambas bases en Docker Compose | ✓ |
 | CRUD completo para todas las tablas | `ArquerosController`, `TorneoController`, `CategoriaController`, `UsuarioController`, `ParticipacionController`, `RondaController` | ✓ |
 | Paginación en recursos | Implementada en endpoints principales | ✓ |
 | Queries simples por recurso | Filtering y búsqueda en listados | ✓ |
@@ -233,17 +262,17 @@ La vista de leaderboard permite consultar el rendimiento general y el historial 
 
 | Criterio | Descripción | Ubicación | Estado |
 | --- | --- | --- | --- |
-| Procedimientos almacenados | 2+ procedimientos para registrar puntaje y calcular ranking | `database/03-storedProced.sql` | ✓ |
-| Triggers | 2+ triggers: validación de flechas y auditoría de cambios | `database/04-triggers.sql` | ✓ |
-| Vista materializada | Leaderboard histórico con top 50 arqueros | `database/02-materialViews.sql` | ✓ |
-| Índices | B-Tree en categoría y arquero | `database/01-dbCreate.sql` | ✓ |
+| Procedimientos almacenados | 2+ procedimientos para registrar puntaje y calcular ranking | `database/sql/04-StoredProced.sql`, `database/sql/05-StoredProced.sql` | ✓ |
+| Triggers | Validación de flechas, auditoría y reglas geoespaciales | `database/sql/08-Triggers.sql`, `database/sql/09-Triggers_geo.sql` | ✓ |
+| Vista materializada | Leaderboard histórico con top 50 arqueros | `database/sql/02-materialViews.sql` | ✓ |
+| Índices | B-Tree y GiST en PostgreSQL; compuestos únicos en MongoDB | `database/sql/`, `database/mongo/02-Indexes.js` | ✓ |
 
 ## Notas de implementación
 
 - El backend expone endpoints REST para las entidades principales del dominio.
 - La seguridad se apoya en JWT y Spring Security.
 - La base de datos concentra reglas críticas para evitar inconsistencias y reforzar el dominio de negocio.
-- Los scripts dentro de `database/` se ejecutan al levantar el contenedor de PostgreSQL por primera vez.
+- Los scripts SQL se ejecutan al crear el volumen de PostgreSQL; el inicializador del Replica Set aplica los scripts MongoDB antes de iniciar el backend.
 
 ## Estado del proyecto
 
