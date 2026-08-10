@@ -64,4 +64,14 @@ public class ParticipacionMongoController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+
+    @GetMapping("/torneo/{torneoId}/completo")
+    public ResponseEntity<?> obtenerDatosCompletosTorneo(@PathVariable String torneoId) {
+        try {
+            return ResponseEntity.ok(service.obtenerDatosCompletosTorneo(torneoId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
