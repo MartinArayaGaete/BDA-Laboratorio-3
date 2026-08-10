@@ -1,111 +1,134 @@
 # Sistema de Gestión de Torneos de Tiro con Arco
 
-Plataforma web del **Grupo 1** para administrar torneos, arqueros, rondas y puntuaciones. Integra React, Spring Boot, PostgreSQL/PostGIS, MongoDB Replica Set y Docker Compose.
+Manual de instalación y puesta en marcha del proyecto del **Grupo 1**. La aplicación usa React, Spring Boot, PostgreSQL/PostGIS, MongoDB Replica Set y Docker Compose.
 
 ## Integrantes
 
-- Martín Alvayay — Frontend/Base de datos (NoSQL)
-- Martin Araya — Base de datos (NoSQL)
-- José Ceardi — Frontend/Backend
-- Benjamín Letelier — Frontend
-- Benjamín Paredes — SQL
-- Nicolas Rojas — Backend
+- Martín Alvayay: Frontend/Base de datos NoSQL
+- Martin Araya: Base de datos NoSQL
+- José Ceardi: Frontend/Backend
+- Benjamín Letelier: Frontend
+- Benjamín Paredes: SQL
+- Nicolas Rojas: Backend
 
-## Arquitectura
+## 1. Requisitos
 
-| Capa | Tecnología | Responsabilidad |
+La instalación recomendada es con Docker. No es necesario instalar Java, Node, PostgreSQL ni MongoDB en la máquina anfitriona.
+
+| Requisito | Versión recomendada | Uso |
 | --- | --- | --- |
-| Frontend | React 19, Vite, React Router, Axios, Bootstrap y MapLibre | Vistas para administrador y arquero, mapas, formularios y estadísticas |
-| Backend | Java 17, Spring Boot, JDBC, Spring Data MongoDB y JWT | API REST, reglas de negocio y conexión entre ambos motores |
-| PostgreSQL/PostGIS | PostgreSQL 16 + PostGIS 3.4 | Usuarios, categorías, auditoría, datos geoespaciales y consultas SQL avanzadas |
-| MongoDB | MongoDB 7, Replica Set `rs0` | Torneos operacionales, rondas, participaciones, puntuaciones y ranking en vivo |
-| Orquestación | Docker Compose | Inicialización reproducible de todos los servicios |
+| Docker Engine o Docker Desktop | Actual | Ejecutar los contenedores |
+| Docker Compose | V2 | Orquestar frontend, backend y bases de datos |
+| Git | Actual | Clonar el repositorio |
 
-PostgreSQL conserva los catálogos relacionales y las reglas SQL; MongoDB concentra el flujo operativo que consume el frontend para torneos, rondas, inscripciones y puntajes. Los servicios Mongo validan las referencias que dependen de PostgreSQL, como usuario, categorías y zonas ambientales.
+En Windows se recomienda usar Docker Desktop con integración WSL2.
 
-## Funcionalidades
+## 2. Clonar el proyecto
 
-### Administración y competencia
+```bash
+git clone <url-del-repositorio>
+cd BDA-Laboratorio-3
+```
 
-- Crear, editar, iniciar y finalizar torneos.
-- Gestionar categorías de distancia y de diana.
-- Inscribir o desinscribir arqueros.
-- Crear rondas, asignar una zona ambiental y avanzar a la siguiente ronda.
-- Registrar seis flechas, la posición del arquero y la posición de la diana sobre el mapa.
-- Calcular puntaje acumulado, ranking en vivo y podio al finalizar un torneo.
-- Consultar auditoría, categorías ambientales y correlación climática.
+Todos los comandos siguientes se ejecutan desde la raíz del repositorio.
 
-## Requisitos
-
-Para el modo estándar solo se requiere Docker con el complemento Docker Compose.
-
-- Linux: Docker Engine y Docker Compose.
-- macOS o Windows: Docker Desktop; en Windows se recomienda la integración con WSL2.
-
-## Inicio rápido
-
-Desde la raíz del repositorio:
+## 3. Levantar la aplicación
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml up -d --build
 ```
 
-Comprueba el estado del arranque:
+Este comando construye y levanta:
+
+| Servicio | Contenedor | Puerto |
+| --- | --- | --- |
+| Frontend React/Vite | `frontend-archery` | `3000` |
+| Backend Spring Boot | `backend-archery` | `8080` |
+| PostgreSQL/PostGIS | `database-archery` | `5432` |
+| pgAdmin | `pgadmin` | `5050` |
+| MongoDB primario | `mongo-archery` | `27017` |
+| MongoDB secundario | `mongo-archery-secondary` | `27018` |
+| Inicializador Mongo Replica Set | `mongo-replica-set-init` | Sin puerto |
+| Mongo Express | `mongo-express` | `8081` |
+
+El backend se inicia después de que PostgreSQL termine su seed y después de que MongoDB quede configurado como Replica Set.
+
+## 4. Verificar que todo inició correctamente
+
+Revisa el estado de los servicios:
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml ps
-docker compose -f infrastructure-archery/docker-compose.yml logs --no-color database-archery mongo-replica-set-init backend-archery
 ```
 
-El inicializador `mongo-replica-set-init` debe finalizar con código `0`; luego el backend inicia cuando PostgreSQL y MongoDB ya están disponibles.
+El contenedor `mongo-replica-set-init` debe aparecer como finalizado correctamente, normalmente con estado `Exited (0)`. Los servicios `frontend-archery`, `backend-archery`, `database-archery`, `mongo-archery`, `mongo-archery-secondary`, `pgadmin` y `mongo-express` deben quedar activos.
 
-| Servicio | URL o conexión por defecto | Credenciales por defecto |
-| --- | --- | --- |
-| Frontend | http://localhost:3000 | Ver credenciales de prueba abajo |
-| Backend | http://localhost:8080 | — |
-| PostgreSQL | `localhost:5432`, base `archeryDb` | `archeryUser` / `12345` |
-| pgAdmin | http://localhost:5050 | `example@gmail.com` / `12345` |
-| MongoDB primario | `mongodb://localhost:27017/archerydb` | Sin autenticación local |
-| MongoDB secundario | `mongodb://localhost:27018/archerydb` | Sin autenticación local |
-| Mongo Express | http://localhost:8081 | `admin` / `12345` |
+Si algo no inicia, revisa logs:
 
-## Población inicial
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml logs --no-color database-archery mongo-replica-set-init backend-archery frontend-archery
+```
 
-Con los volúmenes vacíos, la composición ejecuta este orden:
+Pruebas rápidas de datos:
 
-1. PostgreSQL ejecuta los scripts `database/sql/01-dbCreate.sql` a `database/sql/11-testData.sql`.
-2. Se crea el Replica Set de MongoDB `rs0`.
-3. El inicializador Mongo espera a PostgreSQL y aplica, en este orden:
-   - `database/mongo/01-SchemaValidation.js`
-   - `database/mongo/02-Indexes.js`
-   - `database/mongo/04-SeedData.js`
-   - `database/mongo/03-ArcherRendimientoPipeline.js`
-4. El backend comienza después de que el inicializador Mongo termina correctamente.
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml exec -T database-archery sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT COUNT(*) AS usuarios FROM usuario;"'
+```
 
-El seed deja datos consistentes entre los motores:
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml exec -T mongo-archery mongosh --quiet --eval 'db.getSiblingDB("archerydb").puntuaciones.countDocuments()'
+```
 
-| Recurso | Cantidad |
+Valores esperados con el seed inicial:
+
+| Dato | Cantidad |
 | --- | ---: |
 | Usuarios | 13 |
-| Categorías de distancia | 4 |
-| Categorías de diana | 3 |
 | Torneos | 5 |
 | Rondas | 15 |
 | Participaciones | 35 |
-| Puntuaciones de ronda | 90 |
+| Puntuaciones | 90 |
 | Flechas | 540 |
 
-Los IDs de torneo y ronda de MongoDB son cadenas que reutilizan el ID de PostgreSQL: por ejemplo, el torneo `3` se representa como `"3"` en MongoDB. Los estados se relacionan de esta forma:
+## 5. Entrar a la aplicación
 
-| PostgreSQL | MongoDB |
-| --- | --- |
-| `NOT_STARTED` | `PENDIENTE` |
-| `IN_COURSE` | `IN_COURSE` |
-| `COMPLETED` | `FINISHED` |
+Abre el frontend:
 
-Los torneos de prueba son:
+```text
+http://localhost:3000
+```
 
-| ID Mongo | Torneo | Estado Mongo |
+Credenciales de prueba:
+
+| Rol | RUT | Contraseña |
+| --- | --- | --- |
+| Administrador | `1111111-1` | `admin123` |
+| Arquero | `10000001-K` | `arco123` |
+
+Servicios auxiliares:
+
+| Servicio | URL | Credenciales |
+| --- | --- | --- |
+| Backend API | `http://localhost:8080/api` | No aplica |
+| pgAdmin | `http://localhost:5050` | `example@gmail.com` / `12345` |
+| Mongo Express | `http://localhost:8081` | `admin` / `12345` |
+
+## 6. Datos cargados al instalar
+
+La instalación con volúmenes vacíos ejecuta automáticamente los scripts de población.
+
+PostgreSQL ejecuta los archivos de `database/sql` en orden alfabético, desde `01-dbCreate.sql` hasta `11-testData.sql`. MongoDB ejecuta:
+
+```text
+database/mongo/01-SchemaValidation.js
+database/mongo/02-Indexes.js
+database/mongo/04-SeedData.js
+database/mongo/03-ArcherRendimientoPipeline.js
+```
+
+Torneos iniciales:
+
+| ID Mongo | Torneo | Estado |
 | --- | --- | --- |
 | `"1"` | Copa Santiago Histórica | `FINISHED` |
 | `"2"` | Campeonato Metropolitano | `FINISHED` |
@@ -113,204 +136,182 @@ Los torneos de prueba son:
 | `"4"` | Torneo Primavera | `PENDIENTE` |
 | `"5"` | Copa de los Andes | `PENDIENTE` |
 
-Para verificar la carga:
+Relación de estados entre motores:
 
-```bash
-docker compose -f infrastructure-archery/docker-compose.yml exec -T database-archery sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT COUNT(*) AS usuarios FROM usuario;"'
-docker compose -f infrastructure-archery/docker-compose.yml exec -T mongo-archery mongosh --quiet --eval 'db.getSiblingDB("archerydb").puntuaciones.countDocuments()'
+| PostgreSQL | MongoDB |
+| --- | --- |
+| `NOT_STARTED` | `PENDIENTE` |
+| `IN_COURSE` | `IN_COURSE` |
+| `COMPLETED` | `FINISHED` |
+
+Los IDs usados por MongoDB para torneos y rondas son strings, por ejemplo `"3"`. Los IDs referenciales hacia usuarios, categorías y zonas ambientales corresponden a IDs creados en PostgreSQL.
+
+## 7. Flujo básico para probar una ronda
+
+Con los datos iniciales, el torneo `"3"` queda en curso y tiene rondas creadas. El flujo esperado desde el frontend es:
+
+1. Entrar como administrador.
+2. Abrir un torneo en curso.
+3. Seleccionar una ronda en estado `IN_COURSE`.
+4. Seleccionar un arquero inscrito.
+5. Ubicar al arquero y la diana en el mapa.
+6. Registrar las seis flechas.
+7. Avanzar a la siguiente ronda o finalizar el torneo.
+
+El backend valida que el usuario esté inscrito, que el torneo esté en curso, que la ronda pertenezca al torneo, que la zona ambiental exista, que las flechas respeten la categoría de diana y que las posiciones cumplan la distancia de tiro.
+
+## 8. Endpoints útiles para verificar la instalación
+
+La URL base del frontend apunta a:
+
+```text
+http://localhost:8080/api
 ```
 
-PostgreSQL solo ejecuta los scripts de `/docker-entrypoint-initdb.d` al crear un volumen nuevo. Para conservar los datos al detener el entorno:
+Endpoints principales usados durante la prueba:
+
+| Acción | Endpoint |
+| --- | --- |
+| Login | `POST /api/auth/login` |
+| Listar torneos Mongo | `GET /api/mongo/torneos` |
+| Iniciar torneo | `PUT /api/mongo/torneos/{id}/iniciar` |
+| Avanzar ronda | `PUT /api/mongo/torneos/{id}/siguiente-ronda` |
+| Finalizar torneo | `PUT /api/mongo/torneos/{id}/finalizar` |
+| Rondas de torneo | `GET /api/mongo/rondas/torneo/{torneoId}` |
+| Inscripciones | `GET /api/mongo/participaciones/torneo/{torneoId}` |
+| Registrar puntaje | `POST /api/mongo/puntuaciones/registrar` |
+| Precargar puntaje de arquero | `GET /api/mongo/torneos/{id}/rondas/{numero}/arqueros/{usuarioId}/posicion` |
+| Ranking en vivo | `GET /api/mongo/ranking/torneo/{torneoId}` |
+| Estadísticas pipeline | `GET /api/mongo/pipeline/rendimiento` |
+
+Ejemplo para probar el pipeline de estadísticas:
+
+```bash
+curl http://localhost:8080/api/mongo/pipeline/rendimiento
+```
+
+Ese endpoint devuelve tres sectores: `rendimientoPorTorneo`, `rendimientoPorCategoria` y `distribucionPorRendimiento`.
+
+## 9. Variables de entorno
+
+La composición funciona sin crear archivos adicionales porque cada variable tiene valor por defecto.
+
+| Variable | Valor por defecto | Descripción |
+| --- | --- | --- |
+| `FRONT_PORT` | `3000` | Puerto publicado del frontend |
+| `BACK_PORT` | `8080` | Puerto publicado del backend |
+| `POSTGRES_HOST` | `database-archery` | Host usado por el backend dentro de Docker |
+| `POSTGRES_PORT` | `5432` | Puerto PostgreSQL interno y publicado |
+| `POSTGRES_DB` | `archeryDb` | Base PostgreSQL |
+| `POSTGRES_USER` | `archeryUser` | Usuario PostgreSQL |
+| `POSTGRES_PASSWORD` | `12345` | Contraseña PostgreSQL |
+| `PGADMIN_PORT` | `5050` | Puerto publicado de pgAdmin |
+| `APP_TIMEZONE` | `America/Santiago` | Zona horaria de la aplicación |
+
+`infrastructure-archery/env.txt` es solo una plantilla. Docker Compose no la carga automáticamente. Si se usa con `--env-file infrastructure-archery/env.txt`, hay que cuidar que `BACK_PORT` quede en `8080` o ajustar `frontend/mi-app/src/api/api.js`, porque el frontend tiene configurado `http://localhost:8080/api`.
+
+## 10. Detener, reiniciar y reconstruir
+
+Detener sin borrar datos:
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml down
 ```
 
-Para reconstruir las dos bases desde cero:
+Volver a levantar conservando datos:
+
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml up -d
+```
+
+Reconstruir imágenes:
+
+```bash
+docker compose -f infrastructure-archery/docker-compose.yml up -d --build
+```
+
+Recrear las bases de datos desde cero:
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml down -v
 docker compose -f infrastructure-archery/docker-compose.yml up -d --build
 ```
 
-> **Advertencia:** `down -v` elimina los volúmenes de PostgreSQL y de ambos nodos MongoDB.
+`down -v` elimina los volúmenes de PostgreSQL y MongoDB. Úsalo solo cuando quieras volver al seed inicial.
 
-## Accesos de prueba
+## 11. Instalación local para desarrollo
 
-| Rol | RUT | Contraseña |
-| --- | --- | --- |
-| Administrador | `1111111-1` | `admin123` |
-| Arquero | `10000001-K` | `arco123` |
+Docker sigue siendo necesario para PostgreSQL/PostGIS y MongoDB, pero se puede ejecutar frontend o backend fuera de contenedores.
 
-La pantalla de login redirige a `/admin` o `/archer` según el rol del usuario.
-
-## API usada por el frontend
-
-La URL base por defecto es `http://localhost:8080/api`. La aplicación usa PostgreSQL/PostGIS para usuarios, categorías, auditoría y geodatos; MongoDB se usa para el flujo operativo de competencia.
-
-### Recursos MongoDB
-
-| Recurso | Rutas principales | Uso |
-| --- | --- | --- |
-| Torneos | `GET/POST /mongo/torneos`, `GET/PUT/DELETE /mongo/torneos/{id}` | Consultar y administrar torneos |
-| Ciclo de torneo | `PUT /mongo/torneos/{id}/iniciar`, `/siguiente-ronda`, `/finalizar` | Iniciar, avanzar y finalizar |
-| Rondas | `GET /mongo/rondas/torneo/{torneoId}`, `POST /mongo/rondas` | Consultar o crear rondas |
-| Estado de ronda | `PUT /mongo/rondas/{id}/iniciar`, `/finalizar` | Cambiar estado de una ronda |
-| Zona ambiental | `PUT /mongo/rondas/{id}/zona-ambiental` | Asociar una zona PostGIS a la ronda |
-| Participaciones | `GET/POST /mongo/participaciones`, `DELETE /mongo/participaciones/{torneoId}/{usuarioId}` | Listar, inscribir o desinscribir |
-| Puntuaciones | `POST /mongo/puntuaciones/registrar` | Registrar o actualizar flechas y ubicaciones |
-| Posiciones | `GET /mongo/torneos/{id}/rondas/{numero}/posiciones` | Ubicaciones de los arqueros de una ronda |
-| Puntaje individual | `GET /mongo/torneos/{id}/rondas/{numero}/arqueros/{usuarioId}/posicion` | Precarga de flechas y ubicaciones |
-| Historial de arquero | `GET /mongo/arqueros/{usuarioId}/historial?page=0&size=5` | Historial paginado |
-| Estadísticas de arquero | `GET /mongo/arqueros/{usuarioId}/estadisticas` | Métricas personales |
-| Ranking en vivo | `GET /mongo/ranking/torneo/{torneoId}` | Ranking acumulado del torneo |
-
-#### Cuerpos relevantes
-
-Crear o actualizar un torneo:
-
-```json
-{
-  "nombre": "Torneo de ejemplo",
-  "fechaInicio": "2026-08-10",
-  "fechaTermino": "2026-08-11",
-  "plazasMax": 20,
-  "categoriaDistanciaId": 1,
-  "categoriaDianaId": 1,
-  "zonaCompetenciaGeoJSON": "{\"type\":\"Polygon\",\"coordinates\":[...]}",
-  "lineaTiroGeoJSON": "{\"type\":\"LineString\",\"coordinates\":[...]}"
-}
-```
-
-Inscribir un arquero:
-
-```json
-{
-  "torneoId": "3",
-  "usuarioId": 2
-}
-```
-
-Crear una ronda y asignar su zona ambiental:
-
-```json
-{ "torneoId": "3", "numeroRonda": 4 }
-```
-
-```json
-{ "idZonaAmbiental": 1 }
-```
-
-Aunque el documento de ronda persiste el campo `postgisZonaId`, el cuerpo del endpoint usa `idZonaAmbiental`. Para registrar una puntuación debe ser una zona válida, no `null`.
-
-Registrar las seis flechas:
-
-```json
-{
-  "torneoId": "3",
-  "rondaId": "9",
-  "usuarioId": 2,
-  "flechas": [8, 9, 7, 10, 8, 9],
-  "posicionArquero": "{\"type\":\"Point\",\"coordinates\":[-70.64955,-33.44885]}",
-  "posicionDiana": "{\"type\":\"Point\",\"coordinates\":[-70.64955,-33.44845]}"
-}
-```
-
-El frontend valida seis valores enteros de `0` a `10`; el backend además valida la inscripción, el torneo en curso, la zona ambiental, el mínimo de la categoría de diana y la geometría configurada.
-
-### Recursos PostgreSQL/PostGIS
-
-| Recurso | Rutas principales |
-| --- | --- |
-| Autenticación | `POST /auth/login`, `POST /auth/logout`, `POST /auth/refresh-token` |
-| Usuarios | CRUD en `/usuarios` y listado por rol en `/usuarios/rol/{rol}` |
-| Categorías de distancia | CRUD en `/categorias` |
-| Categorías de diana | CRUD en `/categorias-diana` |
-| Mapas y zonas | `/mapas/torneos/{id}`, `/mapas/zonas-ambientales`, `/mapas/categorias-por-coordenada` |
-| Ambiental | CRUD en `/categorias-ambientales` y `/sectores-ambientales` |
-| Auditoría | `GET /logs?page={page}&size={size}` |
-| Correlación ambiental | `GET /estadisticas/correlacion-ambiental` |
-| Flujo relacional histórico | `/torneos`, `/rondas`, `/participaciones`, `/arqueros` |
-
-Los endpoints relacionales de torneo tienen contratos distintos de los MongoDB. Por ejemplo, el registro SQL de puntaje usa `/torneos/registrar-puntaje`, mientras que el detalle de torneo del frontend usa `/mongo/puntuaciones/registrar`.
-
-## Flujo correcto de una ronda MongoDB
-
-1. Crea el torneo en estado `PENDIENTE`, al menos una ronda y las participaciones necesarias.
-2. Inicia el torneo con `PUT /api/mongo/torneos/{id}/iniciar`. El servicio deja la primera ronda en `IN_COURSE`.
-3. Asigna a la ronda una zona ambiental con `PUT /api/mongo/rondas/{rondaId}/zona-ambiental`.
-4. Registra las seis flechas y ambas posiciones mediante `POST /api/mongo/puntuaciones/registrar`.
-5. Para continuar, usa `PUT /api/mongo/torneos/{id}/siguiente-ronda`: finaliza la ronda activa e inicia la siguiente pendiente.
-6. Finaliza el torneo con `PUT /api/mongo/torneos/{id}/finalizar`; se calculan puntajes finales y podio.
-
-Este orden evita errores como `El torneo no está en curso` y asegura que la ronda que recibe las flechas tenga una zona ambiental asociada.
-
-## Pipeline de rendimiento MongoDB
-
-La pantalla administrativa consulta:
-
-```text
-GET /api/mongo/pipeline/rendimiento
-```
-
-El endpoint ejecuta una agregación `$facet` sobre la colección `puntuaciones` y devuelve un arreglo con un único documento:
-
-```json
-[
-  {
-    "rendimientoPorTorneo": [],
-    "rendimientoPorCategoria": [],
-    "distribucionPorRendimiento": []
-  }
-]
-```
-
-Cada elemento de `rendimientoPorTorneo` incluye `torneoId`, `usuarioId`, nombre del torneo y arquero, `promedioPuntaje`, `mejorRonda` y `rondasRegistradas`. La sección por categoría usa `categoria` y `rondasConsideradas`; la distribución entrega cada rango, su cantidad y la lista de arqueros.
-
-El resultado se calcula al solicitar el endpoint; no se materializa una colección adicional de estadísticas. El script `database/mongo/03-ArcherRendimientoPipeline.js` se ejecuta durante la inicialización para verificar e imprimir el resultado del mismo pipeline.
-
-> La ruta `/api/mongo/puntuaciones/estadisticas` mantiene una agregación anterior de formato plano. La pantalla de estadísticas usa `/api/mongo/pipeline/rendimiento`.
-
-Puedes revisar el resultado directamente:
+Levantar solo bases de datos y herramientas:
 
 ```bash
-curl http://localhost:8080/api/mongo/pipeline/rendimiento
+docker compose -f infrastructure-archery/docker-compose.yml up -d database-archery mongo-archery mongo-archery-secondary mongo-replica-set-init pgadmin mongo-express
 ```
 
-## Reglas de datos relevantes
+Backend local:
 
-- Una participación MongoDB debe referenciar a un usuario existente en PostgreSQL.
-- Un torneo MongoDB obtiene sus categorías de distancia y diana desde PostgreSQL.
-- Una ronda guarda el ID de una zona ambiental PostGIS en `postgisZonaId`.
-- La combinación de torneo, ronda y usuario es única para una puntuación MongoDB; registrar otra vez la misma combinación actualiza el documento.
-- Las flechas deben estar entre `0` y `10`; la categoría de diana puede imponer un mínimo mayor.
-- Las coordenadas se validan contra la zona de competencia y la distancia de tiro de la categoría.
-- PostgreSQL mantiene procedimientos, triggers, auditoría y la vista materializada `leaderboard_top_50` para el flujo relacional.
+```bash
+cd backend/demo
+./mvnw spring-boot:run
+```
 
-## Variables de entorno
+El backend local necesita las mismas variables de conexión. Como `application.properties` usa por defecto `POSTGRES_HOST=database-archery`, para correr fuera de Docker se debe usar `POSTGRES_HOST=localhost`.
 
-Los valores por defecto del archivo Compose permiten ejecutar el proyecto sin configuración adicional.
+Frontend local:
 
-| Variable | Valor por defecto | Nota |
-| --- | --- | --- |
-| `FRONT_PORT` | `3000` | Puerto publicado de Vite |
-| `BACK_PORT` | `8080` | Debe coincidir con la URL configurada en `frontend/mi-app/src/api/api.js` |
-| `POSTGRES_DB` | `archeryDb` | Base de datos PostgreSQL |
-| `POSTGRES_USER` | `archeryUser` | Usuario PostgreSQL |
-| `POSTGRES_PASSWORD` | `12345` | Contraseña PostgreSQL de desarrollo |
-| `PGADMIN_PORT` | `5050` | Puerto publicado de pgAdmin |
-| `APP_TIMEZONE` | `America/Santiago` | Zona horaria de los servicios |
+```bash
+cd frontend/mi-app
+npm install
+npm run dev
+```
 
-`infrastructure-archery/env.txt` es una plantilla de referencia; Docker Compose no la carga automáticamente. Si se usa con `--env-file`, ajusta `BACK_PORT` a `8080` o modifica el `baseURL` del cliente Axios. Mantén `POSTGRES_PORT=5432`: en la composición actual esa variable se reutiliza como puerto interno del backend y como puerto publicado de PostgreSQL.
+El cliente Axios está configurado en `frontend/mi-app/src/api/api.js` con:
 
-## Verificación de código
+```text
+http://localhost:8080/api
+```
+
+## 12. Comandos de validación
+
+Validar la configuración de Compose:
 
 ```bash
 docker compose -f infrastructure-archery/docker-compose.yml config --quiet
-cd backend/demo && ./mvnw -DskipTests compile
-cd frontend/mi-app && npm run build
 ```
 
-## Nota de seguridad
+Compilar backend:
 
-El login genera una cookie JWT y el frontend separa las rutas de administrador y arquero. Sin embargo, la configuración actual del backend permite todas las solicitudes (`anyRequest().permitAll()`) para desarrollo. No debe utilizarse tal cual en un entorno de producción; allí se debe habilitar el filtro JWT y las reglas RBAC del backend.
+```bash
+cd backend/demo
+./mvnw -DskipTests compile
+```
+
+Compilar frontend:
+
+```bash
+cd frontend/mi-app
+npm run build
+```
+
+## 13. Problemas comunes
+
+**El frontend abre, pero no carga datos:** verifica que el backend esté en `http://localhost:8080` y que `frontend/mi-app/src/api/api.js` apunte a ese puerto.
+
+**El backend no inicia:** revisa los logs de `database-archery`, `mongo-replica-set-init` y `backend-archery`. El backend espera a que PostgreSQL tenga el usuario seed `1111111-1` y a que MongoDB termine el Replica Set.
+
+**Los datos no se regeneran después de cambiar scripts SQL:** PostgreSQL solo ejecuta `/docker-entrypoint-initdb.d` cuando el volumen está vacío. Ejecuta `docker compose -f infrastructure-archery/docker-compose.yml down -v` y vuelve a levantar.
+
+**MongoDB no permite Change Streams:** el proyecto usa MongoDB como Replica Set `rs0`; si se ejecuta MongoDB manualmente sin Replica Set, los listeners de change stream no funcionarán.
+
+**Puerto ocupado:** define otro puerto antes del comando, por ejemplo:
+
+```bash
+FRONT_PORT=3001 docker compose -f infrastructure-archery/docker-compose.yml up -d frontend-archery
+```
+
+Si cambias `BACK_PORT`, también debes cambiar el `baseURL` del frontend.
+
+## 14. Nota de seguridad
+
+Las credenciales incluidas son solo para desarrollo y demostración. La configuración actual permite solicitudes de desarrollo y no debe usarse como configuración productiva sin endurecer autenticación, autorización, secretos y exposición de puertos.
