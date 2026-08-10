@@ -4,15 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Validaciones espaciales dist_categoria registrar ptje ronda">
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/RegistrarPuntajeDTO.java" afterDir="false" />
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="PODIO, Registrar pjate en front (requeria dto)">
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/ArqueroMongoController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/ArqueroMongoService.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/database/mongo/seed.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/PuntuacionMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/PuntuacionMongoController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/ParticipacionMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/ParticipacionMongoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/GeospatialMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/GeospatialMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" beforeDir="false" afterPath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -132,7 +132,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786324980196</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="PODIO, Registrar pjate en front (requeria dto)">
+      <option name="closed" value="true" />
+      <created>1786329849519</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1786329849520</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -153,6 +161,7 @@
     <MESSAGE value="Puntuaciones + mover carpetas" />
     <MESSAGE value="Commit torneo ya no tiene embebida zona ambiental" />
     <MESSAGE value="Validaciones espaciales dist_categoria registrar ptje ronda" />
-    <option name="LAST_COMMIT_MESSAGE" value="Validaciones espaciales dist_categoria registrar ptje ronda" />
+    <MESSAGE value="PODIO, Registrar pjate en front (requeria dto)" />
+    <option name="LAST_COMMIT_MESSAGE" value="PODIO, Registrar pjate en front (requeria dto)" />
   </component>
 </project>

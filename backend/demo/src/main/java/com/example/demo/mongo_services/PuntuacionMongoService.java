@@ -145,7 +145,7 @@ public class PuntuacionMongoService {
                 .findByTorneoIdAndUsuarioId(torneoId, usuarioId)
                 .orElseGet(() -> {
                     RankingVivoDocument nuevo = new RankingVivoDocument();
-                    nuevo.setPosicion(1); // ← Valor inicial
+                    nuevo.setPosicion(1);
                     return nuevo;
                 });
         rankingDoc.setTorneoId(torneoId);

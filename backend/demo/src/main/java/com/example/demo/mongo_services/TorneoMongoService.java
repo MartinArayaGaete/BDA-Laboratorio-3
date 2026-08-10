@@ -130,4 +130,35 @@ public class TorneoMongoService {
             pos++;
         }
     }
+
+
+
+    public List<Map<String, Object>> obtenerPosicionesRonda(String torneoId, int numeroRonda) {
+        List<PuntuacionDocument> puntuaciones = puntuacionMongoRepo
+                .findByTorneoIdAndNumeroRonda(torneoId, numeroRonda);
+        return puntuaciones.stream()
+                .filter(p -> p.getPosicionArquero() != null)
+                .map(p -> Map.<String, Object>of(
+                        "id_usuario", p.getUsuarioId(),
+                        "nombre", p.getNombreArquero(),
+                        "posicion_arquero", p.getPosicionArquero(),
+                        "posicion_diana", p.getPosicionDiana(),
+                        "puntaje_ronda", p.getPuntajeTotal()))
+                .toList();
+    }
+
+    public Map<String, Object> obtenerPosicionArqueroEnRonda(String torneoId, int numeroRonda, Long usuarioId) {
+        List<PuntuacionDocument> puntuaciones = puntuacionMongoRepo
+                .findByTorneoIdAndNumeroRondaAndUsuarioId(torneoId, numeroRonda, usuarioId);
+        if (puntuaciones.isEmpty()) throw new IllegalArgumentException("Posición no encontrada");
+        PuntuacionDocument p = puntuaciones.get(0);
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("id_usuario", p.getUsuarioId());
+        result.put("nombre", p.getNombreArquero());
+        result.put("posicion_arquero", p.getPosicionArquero());
+        result.put("posicion_diana", p.getPosicionDiana());
+        result.put("puntaje_ronda", p.getPuntajeTotal());
+        result.put("flechas", p.getFlechas());
+        return result;
+    }
 }

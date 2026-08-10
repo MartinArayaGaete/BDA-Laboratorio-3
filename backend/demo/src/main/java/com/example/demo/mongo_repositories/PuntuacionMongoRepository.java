@@ -14,4 +14,7 @@ public interface PuntuacionMongoRepository extends MongoRepository<PuntuacionDoc
     List<PuntuacionDocument> findByRondaId(String rondaId);
     List<PuntuacionDocument> findByUsuarioId(Long usuarioId);
     List<PuntuacionDocument> findByTorneoIdOrderByPuntajeTotalDesc(String torneoId);
+    List<PuntuacionDocument> findByTorneoIdAndNumeroRonda(String torneoId, int numeroRonda);
+    List<PuntuacionDocument> findByTorneoIdAndNumeroRondaAndUsuarioId(String torneoId, int numeroRonda, Long usuarioId);
+    List<PuntuacionDocument> findByTorneoIdAndUsuarioId(String torneoId, Long usuarioId);
 }
