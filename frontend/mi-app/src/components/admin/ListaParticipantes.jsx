@@ -25,25 +25,27 @@ export default function ListaParticipantes({
           <div className="list-group list-group-flush">
             {inscritos.map((ins, idx) => (
               <button
-                key={ins.idUsuario}
+                // MongoDB: usuarioId en lugar de idUsuario
+                key={ins.usuarioId}
                 className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${
-                  usuarioSel === ins.idUsuario ? "active" : ""
+                  usuarioSel === ins.usuarioId ? "active" : ""
                 }`}
                 onClick={() =>
-                  esInteractivo && onSeleccionarUsuario(ins.idUsuario)
+                  esInteractivo && onSeleccionarUsuario(ins.usuarioId)
                 }
                 disabled={!esInteractivo}
               >
                 <span>
                   <span className="badge bg-secondary me-2">{idx + 1}</span>
-                  {ins.nombre}
+                  {/* MongoDB: nombreArquero en lugar de nombre */}
+                  {ins.nombreArquero}
                 </span>
                 <small
                   className={
-                    usuarioSel === ins.idUsuario ? "text-white" : "text-muted"
+                    usuarioSel === ins.usuarioId ? "text-white" : "text-muted"
                   }
                 >
-                  {ins.rut}
+                  ID: {ins.usuarioId}
                 </small>
               </button>
             ))}

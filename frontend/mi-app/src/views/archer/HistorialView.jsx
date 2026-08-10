@@ -26,7 +26,6 @@ export default function HistorialView() {
         page,
         pageSize,
       );
-      // El backend devuelve: { torneos: [...], page, size, totalElements, totalPages }
       setHistorial(data);
     } catch (err) {
       setError("Error al cargar el historial");
@@ -38,11 +37,13 @@ export default function HistorialView() {
 
   const getEstadoBadge = (estado) => {
     const estados = {
-      NOT_STARTED: { class: "bg-secondary", text: "No Iniciado" },
+      PENDIENTE: { class: "bg-secondary", text: "No Iniciado" },
       IN_COURSE: { class: "bg-primary", text: "En Curso" },
+      FINISHED: { class: "bg-success", text: "Finalizado" },
+      NOT_STARTED: { class: "bg-secondary", text: "No Iniciado" },
       COMPLETED: { class: "bg-success", text: "Finalizado" },
     };
-    const config = estados[estado] || { class: "bg-dark", text: estado };
+    const config = estados[estado] || { class: "bg-dark", text: estado || "?" };
     return <span className={`badge ${config.class}`}>{config.text}</span>;
   };
 
@@ -54,14 +55,13 @@ export default function HistorialView() {
       <div>
         <h2 className="mb-4 text-dark">Mi Historial</h2>
         <div className="alert alert-danger">{error}</div>
-        <button className="btn btn-outline-primary" onClick={cargarHistorial}>
+        <button className="btn btn-outline-dark" onClick={cargarHistorial}>
           Reintentar
         </button>
       </div>
     );
   }
 
-  // El DTO HistorialArqueroResponse tiene: torneos, page, size, totalElements, totalPages
   const torneos = historial?.torneos || [];
   const totalPages = historial?.totalPages || 0;
   const totalElements = historial?.totalElements || 0;
@@ -69,7 +69,6 @@ export default function HistorialView() {
   return (
     <div>
       <h2 className="mb-4 text-dark">Mi Historial</h2>
-
       <p className="text-muted">
         Total de torneos participados: <strong>{totalElements}</strong>
       </p>
@@ -85,9 +84,11 @@ export default function HistorialView() {
               <div className="card-header bg-light">
                 <div className="d-flex justify-content-between align-items-center">
                   <h5 className="mb-0">{torneo.nombreTorneo}</h5>
-                  {getEstadoBadge(torneo.estadoTorneo)}
+                  {getEstadoBadge(torneo.estado || torneo.estadoTorneo)}
                 </div>
-                <small className="text-muted">{torneo.fechaInicio}</small>
+                {torneo.fechaInicio && (
+                  <small className="text-muted">{torneo.fechaInicio}</small>
+                )}
               </div>
               <div className="card-body">
                 <div className="row mb-3 text-center">
@@ -131,14 +132,21 @@ export default function HistorialView() {
                                 {ronda.puntajeRonda || 0}
                               </td>
                               <td>
-                                {ronda.flechas?.map((f, j) => (
-                                  <span
-                                    key={j}
-                                    className="badge bg-secondary me-1"
-                                  >
-                                    {f.puntaje}
-                                  </span>
-                                )) || "Sin datos"}
+                                {Array.isArray(ronda.flechas) &&
+                                ronda.flechas.length > 0
+                                  ? ronda.flechas.map((f, j) => {
+                                      const puntaje =
+                                        typeof f === "object" ? f.puntaje : f;
+                                      return (
+                                        <span
+                                          key={j}
+                                          className="badge bg-secondary me-1"
+                                        >
+                                          {puntaje}
+                                        </span>
+                                      );
+                                    })
+                                  : "Sin datos"}
                               </td>
                             </tr>
                           ))}
@@ -154,7 +162,7 @@ export default function HistorialView() {
           {totalPages > 1 && (
             <div className="d-flex justify-content-center gap-2 mt-4">
               <button
-                className="btn btn-outline-primary"
+                className="btn btn-outline-dark"
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
               >
@@ -164,7 +172,7 @@ export default function HistorialView() {
                 Página {page + 1} de {totalPages}
               </span>
               <button
-                className="btn btn-outline-primary"
+                className="btn btn-outline-dark"
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
               >

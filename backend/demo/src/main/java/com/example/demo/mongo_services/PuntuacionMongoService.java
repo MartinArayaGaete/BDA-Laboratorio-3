@@ -105,7 +105,8 @@ public class PuntuacionMongoService {
         if (torneo.getCategoriaDistancia() == null) return;
         double distancia = geospatialMongoService.calcularDistancia(doc.getPosicionArquero(), doc.getPosicionDiana());
         int maxDistancia = torneo.getCategoriaDistancia().getDistanciaTiro();
-        if (distancia > maxDistancia)
+        // Agregar 0.5m de tolerancia para redondeo
+        if (distancia > maxDistancia + 0.5)
             throw new IllegalArgumentException("Distancia excedida: " + Math.round(distancia) + "m (máx: " + maxDistancia + "m)");
     }
 

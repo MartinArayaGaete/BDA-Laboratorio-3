@@ -3,7 +3,7 @@ import api from "./api";
 const apiParticipaciones = {
   obtenerTodas: async () => {
     try {
-      const response = await api.get("/participaciones");
+      const response = await api.get("/mongo/participaciones");
       return response.data;
     } catch (error) {
       return [];
@@ -12,7 +12,7 @@ const apiParticipaciones = {
 
   obtenerInscritosPorTorneo: async (idTorneo) => {
     try {
-      const response = await api.get(`/participaciones/torneo/${idTorneo}`);
+      const response = await api.get(`/mongo/participaciones/torneo/${idTorneo}`);
       return response.data || [];
     } catch (error) {
       return [];
@@ -21,30 +21,29 @@ const apiParticipaciones = {
 
   obtenerDatosCompletosTorneo: async (idTorneo) => {
     const response = await api.get(
-      `/participaciones/torneo/${idTorneo}/completo`,
+      `/mongo/participaciones/torneo/${idTorneo}/completo`,
     );
     return response.data;
   },
 
-  // CORREGIDO: Solo envía idUsuario e idTorneo
   inscribirArquero: async (idTorneo, idUsuario) => {
-    const response = await api.post("/participaciones/inscribir", {
-      idUsuario,
-      idTorneo,
+    const response = await api.post("/mongo/participaciones", {
+      torneoId: idTorneo,
+      usuarioId: idUsuario,
     });
     return response.data;
   },
 
   desinscribirArquero: async (idTorneo, idUsuario) => {
-    const response = await api.delete("/participaciones/desinscribir", {
-      params: { idTorneo, idUsuario },
-    });
+    const response = await api.delete(
+      `/mongo/participaciones/${idTorneo}/${idUsuario}`
+    );
     return response.data;
   },
 
   obtenerTorneosInscritos: async (idUsuario) => {
     try {
-      const response = await api.get(`/participaciones/usuario/${idUsuario}`);
+      const response = await api.get(`/mongo/participaciones/usuario/${idUsuario}`);
       return response.data || [];
     } catch (error) {
       return [];

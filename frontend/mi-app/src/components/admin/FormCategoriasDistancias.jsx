@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import categoriaServiceDistancias from "../../api/apiCategoriasDistancias.js";
+import categoriaService from "../../api/apiCategoriasDistancias.js";
 
 export default function FormCategoriasDistancias({ onCategoriaCreada }) {
   const [nombreCategoria, setNombreCategoria] = useState("");
@@ -18,22 +18,33 @@ export default function FormCategoriasDistancias({ onCategoriaCreada }) {
       return;
     }
 
-    const distanciaNumerica = distanciaTiro.trim() === "" ? null : Number(distanciaTiro);
+    const distanciaNumerica =
+      distanciaTiro.trim() === "" ? null : Number(distanciaTiro);
 
-    if (distanciaTiro.trim() !== "" && (!Number.isInteger(distanciaNumerica) || distanciaNumerica < 0)) {
-      setError("La distancia de tiro debe ser un número entero mayor o igual a 0");
+    if (
+      distanciaTiro.trim() !== "" &&
+      (!Number.isInteger(distanciaNumerica) || distanciaNumerica < 0)
+    ) {
+      setError(
+        "La distancia de tiro debe ser un número entero mayor o igual a 0",
+      );
       return;
     }
 
     setGuardando(true);
     try {
-      await categoriaServiceDistancias.crearCategoria({
+      await categoriaService.crearCategoria({
         nombreCategoria: nombreCategoria.trim(),
         distanciaTiro: distanciaNumerica,
       });
 
-      const mensajeDistancia = distanciaNumerica === null ? "" : ` con distancia de tiro de ${distanciaNumerica} m`;
-      setSuccess(`Categoría "${nombreCategoria.trim()}" creada exitosamente${mensajeDistancia}`);
+      const mensajeDistancia =
+        distanciaNumerica === null
+          ? ""
+          : ` con distancia de tiro de ${distanciaNumerica} m`;
+      setSuccess(
+        `Categoría "${nombreCategoria.trim()}" creada exitosamente${mensajeDistancia}`,
+      );
       setNombreCategoria("");
       setDistanciaTiro("");
       if (onCategoriaCreada) onCategoriaCreada();

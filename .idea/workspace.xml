@@ -4,16 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="PODIO, Registrar pjate en front (requeria dto)">
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/ArqueroMongoController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/ArqueroMongoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/mongo/seed.js" afterDir="false" />
+    <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Quitar requisito ronda estado, solo pide id zona">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/PuntuacionMongoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/PuntuacionMongoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" beforeDir="false" afterPath="$PROJECT_DIR$/database/mongo/01-SchemaValidation.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/api/apiArqueros.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/api/apiArqueros.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/api/apiParticipaciones.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/api/apiParticipaciones.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/api/apiRondas.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/api/apiRondas.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/api/apiTorneos.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/api/apiTorneos.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormCategoriasDistancias.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormCategoriasDistancias.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormCrearTorneo.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormCrearTorneo.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormularioFlechas.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/FormularioFlechas.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/ListaParticipantes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/ListaParticipantes.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/Podio.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/Podio.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TablaCategoriasDistancias.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TablaCategoriasDistancias.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TablaTorneos.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TablaTorneos.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TorneoCabecera.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/components/admin/TorneoCabecera.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/CategoriasDistanciasView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/CategoriasDistanciasView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/CategoriasPuntajesView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/CategoriasPuntajesView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/DashboardView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/DashboardView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/TorneoDetalleView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/admin/TorneoDetalleView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/ArcherDashboardView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/ArcherDashboardView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/EstadisticasView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/EstadisticasView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/HistorialView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/HistorialView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/TorneosView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mi-app/src/views/archer/TorneosView.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +42,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -140,7 +158,23 @@
       <option name="project" value="LOCAL" />
       <updated>1786329849520</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="BACKEND terminado, falta arreglar el frontennnnnddddd">
+      <option name="closed" value="true" />
+      <created>1786347277612</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1786347277612</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Quitar requisito ronda estado, solo pide id zona">
+      <option name="closed" value="true" />
+      <created>1786351331182</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1786351331182</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -162,6 +196,8 @@
     <MESSAGE value="Commit torneo ya no tiene embebida zona ambiental" />
     <MESSAGE value="Validaciones espaciales dist_categoria registrar ptje ronda" />
     <MESSAGE value="PODIO, Registrar pjate en front (requeria dto)" />
-    <option name="LAST_COMMIT_MESSAGE" value="PODIO, Registrar pjate en front (requeria dto)" />
+    <MESSAGE value="BACKEND terminado, falta arreglar el frontennnnnddddd" />
+    <MESSAGE value="Quitar requisito ronda estado, solo pide id zona" />
+    <option name="LAST_COMMIT_MESSAGE" value="Quitar requisito ronda estado, solo pide id zona" />
   </component>
 </project>

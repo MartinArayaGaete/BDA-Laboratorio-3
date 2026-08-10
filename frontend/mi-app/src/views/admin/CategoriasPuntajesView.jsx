@@ -29,9 +29,7 @@ export default function CategoriasPuntajesView() {
 
   return (
     <div>
-      <h2 className="mb-4" color="black">
-        Gestión de categorías de diana
-      </h2>
+      <h2 className="mb-4 text-dark">Gestión de categorías de diana</h2>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -50,7 +48,7 @@ export default function CategoriasPuntajesView() {
           ) : (
             <TablaCategoriasPuntajes
               categorias={categorias}
-              onCategoriaEliminada={cargarCategoriasDiana}
+              onCategoriaActualizada={cargarCategoriasDiana}
             />
           )}
         </div>

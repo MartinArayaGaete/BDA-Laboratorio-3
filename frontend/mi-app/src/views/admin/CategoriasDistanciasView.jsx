@@ -29,9 +29,7 @@ export default function CategoriasDistanciaView() {
 
   return (
     <div>
-      <h2 className="mb-4" color="black">
-        Gestión de categorías de distancia
-      </h2>
+      <h2 className="mb-4 text-dark">Gestión de categorías de distancia</h2>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -44,13 +42,11 @@ export default function CategoriasDistanciaView() {
         </div>
         <div className="card-body">
           {categorias.length === 0 ? (
-            <p className="text-muted text-center mb-0">
-              No hay categorías registradas
-            </p>
+            <p className="text-muted text-center mb-0">No hay categorías registradas</p>
           ) : (
             <TablaCategoriasDistancias
               categorias={categorias}
-              onCategoriaEliminada={cargarCategorias}
+              onCategoriaActualizada={cargarCategorias}
             />
           )}
         </div>

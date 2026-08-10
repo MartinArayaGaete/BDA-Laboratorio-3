@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import torneoService from "../../api/apiTorneos.js";
-import apiParticipaciones from "../../api/apiParticipaciones.js";
+import api from "../../api/api.js";
 import LoadingSpinner from "../../components/common/LoadingSpinner.jsx";
 
 export default function TorneosView() {
@@ -21,18 +21,22 @@ export default function TorneosView() {
       setError("");
       const [todosTorneos, torneosInscritos] = await Promise.all([
         torneoService.obtenerTodos().catch(() => []),
-        apiParticipaciones
-          .obtenerTorneosInscritos(user.idUsuario)
+        api.get(`/mongo/participaciones/usuario/${user.idUsuario}`)
+          .then((r) => r.data)
           .catch(() => []),
       ]);
       const torneosArray = Array.isArray(todosTorneos) ? todosTorneos : [];
       const inscritosArray = Array.isArray(torneosInscritos)
         ? torneosInscritos
         : [];
+
+      // MongoDB: PENDIENTE, id, torneoId
       const disponibles = torneosArray.filter(
         (t) =>
-          t.estadoTorneo === "NOT_STARTED" &&
-          !inscritosArray.some((i) => i.id_torneo === t.idTorneo),
+          (t.estado === "PENDIENTE" || t.estadoTorneo === "NOT_STARTED") &&
+          !inscritosArray.some(
+            (i) => (i.torneoId || i.id_torneo) === (t.id || t.idTorneo)
+          ),
       );
       setTorneos(disponibles);
       setInscritos(inscritosArray);
@@ -50,18 +54,23 @@ export default function TorneosView() {
   const handleInscribir = async (torneo) => {
     setError("");
     setSuccess("");
-    setInscribiendo(torneo.idTorneo);
+    const idTorneo = torneo.id || torneo.idTorneo;
+    setInscribiendo(idTorneo);
 
     try {
-      await apiParticipaciones.inscribirArquero(
-        torneo.idTorneo,
-        user.idUsuario,
-      );
+      await api.post("/mongo/participaciones", {
+        torneoId: idTorneo,
+        usuarioId: user.idUsuario,
+      });
       setSuccess("¡Inscripción exitosa!");
       cargarTorneos();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      const msg = err.response?.data || "Error al inscribirse";
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.response?.data ||
+        "Error al inscribirse";
       setError(typeof msg === "string" ? msg : "Error al inscribirse");
     } finally {
       setInscribiendo(null);
@@ -70,11 +79,13 @@ export default function TorneosView() {
 
   const getEstadoBadge = (estado) => {
     const estados = {
+      PENDIENTE: { class: "bg-secondary", text: "Próximo" },
       NOT_STARTED: { class: "bg-secondary", text: "Próximo" },
       IN_COURSE: { class: "bg-primary", text: "En Curso" },
+      FINISHED: { class: "bg-success", text: "Finalizado" },
       COMPLETED: { class: "bg-success", text: "Finalizado" },
     };
-    const config = estados[estado] || { class: "bg-dark", text: estado };
+    const config = estados[estado] || { class: "bg-dark", text: estado || "?" };
     return <span className={`badge ${config.class}`}>{config.text}</span>;
   };
 
@@ -84,119 +95,77 @@ export default function TorneosView() {
     <div>
       <h2 className="mb-4 text-dark">Mis Torneos</h2>
 
-      {error && (
-        <div className="alert alert-danger alert-dismissible fade show">
-          {error}
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setError("")}
-          ></button>
-        </div>
-      )}
-      {success && (
-        <div className="alert alert-success alert-dismissible fade show">
-          {success}
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setSuccess("")}
-          ></button>
-        </div>
-      )}
+      {error && <div className="alert alert-danger alert-dismissible fade show">{error}<button className="btn-close" onClick={() => setError("")}></button></div>}
+      {success && <div className="alert alert-success alert-dismissible fade show">{success}<button className="btn-close" onClick={() => setSuccess("")}></button></div>}
 
       <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "disponibles" ? "active" : ""}`}
-            onClick={() => setActiveTab("disponibles")}
-          >
+          <button className={`nav-link ${activeTab === "disponibles" ? "active" : ""}`} onClick={() => setActiveTab("disponibles")}>
             Disponibles ({torneos.length})
           </button>
         </li>
         <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "inscritos" ? "active" : ""}`}
-            onClick={() => setActiveTab("inscritos")}
-          >
+          <button className={`nav-link ${activeTab === "inscritos" ? "active" : ""}`} onClick={() => setActiveTab("inscritos")}>
             Inscritos ({inscritos.length})
           </button>
         </li>
       </ul>
 
-      {activeTab === "disponibles" &&
-        (torneos.length === 0 ? (
-          <div className="text-center py-5 text-muted">
-            <p>No hay torneos disponibles para inscripción</p>
-          </div>
-        ) : (
-          <div className="row">
-            {torneos.map((torneo) => (
-              <div key={torneo.idTorneo} className="col-md-6 mb-3">
-                <div className="card shadow-sm h-100">
-                  <div className="card-body">
-                    <h5 className="card-title text-dark">
-                      {torneo.nombreTorneo}
-                    </h5>
-                    <p className="text-muted small">
-                      {torneo.fechaInicio} → {torneo.fechaTermino}
-                    </p>
-                    <p className="text-muted small">
-                      Plazas: {torneo.nroPlazaActual ?? 0}/
-                      {torneo.nroPlazaMax ?? "?"}
-                    </p>
-                    {getEstadoBadge(torneo.estadoTorneo)}
-                    <button
-                      className="btn btn-dark btn-sm mt-2 w-100"
-                      onClick={() => handleInscribir(torneo)}
-                      disabled={
-                        inscribiendo === torneo.idTorneo ||
-                        torneo.nroPlazaActual >= torneo.nroPlazaMax
-                      }
-                    >
-                      {inscribiendo === torneo.idTorneo
-                        ? "Inscribiendo..."
-                        : torneo.nroPlazaActual >= torneo.nroPlazaMax
-                          ? "Sin plazas"
-                          : "Inscribirme"}
-                    </button>
-                  </div>
+      {/* DISPONIBLES */}
+      {activeTab === "disponibles" && (torneos.length === 0 ? (
+        <div className="text-center py-5 text-muted"><p>No hay torneos disponibles</p></div>
+      ) : (
+        <div className="row">
+          {torneos.map((torneo) => (
+            <div key={torneo.id || torneo.idTorneo} className="col-md-6 mb-3">
+              <div className="card shadow-sm h-100">
+                <div className="card-body">
+                  <h5 className="card-title text-dark">{torneo.nombre || torneo.nombreTorneo}</h5>
+                  <p className="text-muted small">{torneo.fechaInicio} → {torneo.fechaTermino}</p>
+                  <p className="text-muted small">
+                    Plazas: {torneo.plazasActual ?? torneo.nroPlazaActual ?? 0}/{torneo.plazasMax ?? torneo.nroPlazaMax ?? "?"}
+                  </p>
+                  {getEstadoBadge(torneo.estado || torneo.estadoTorneo)}
+                  <button
+                    className="btn btn-dark btn-sm mt-2 w-100"
+                    onClick={() => handleInscribir(torneo)}
+                    disabled={
+                      inscribiendo === (torneo.id || torneo.idTorneo) ||
+                      (torneo.plazasActual ?? torneo.nroPlazaActual ?? 0) >= (torneo.plazasMax ?? torneo.nroPlazaMax ?? 999)
+                    }
+                  >
+                    {inscribiendo === (torneo.id || torneo.idTorneo) ? "Inscribiendo..." :
+                     (torneo.plazasActual ?? torneo.nroPlazaActual ?? 0) >= (torneo.plazasMax ?? torneo.nroPlazaMax ?? 999) ? "Sin plazas" : "Inscribirme"}
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
+      ))}
 
-      {activeTab === "inscritos" &&
-        (inscritos.length === 0 ? (
-          <div className="text-center py-5 text-muted">
-            <p>No estás inscrito en ningún torneo</p>
-          </div>
-        ) : (
-          <div className="row">
-            {inscritos.map((torneo) => (
-              <div
-                key={torneo.id_torneo || torneo.idTorneo}
-                className="col-md-6 mb-3"
-              >
-                <div className="card shadow-sm h-100">
-                  <div className="card-body">
-                    <h5 className="card-title text-dark">
-                      {torneo.nombre_torneo || torneo.nombreTorneo}
-                    </h5>
-                    <p className="text-muted small">
-                      {torneo.fecha_inicio || torneo.fechaInicio} →{" "}
-                      {torneo.fecha_termino || torneo.fechaTermino}
-                    </p>
-                    {getEstadoBadge(
-                      torneo.estado_torneo || torneo.estadoTorneo,
-                    )}
-                  </div>
+      {/* INSCRITOS */}
+      {activeTab === "inscritos" && (inscritos.length === 0 ? (
+        <div className="text-center py-5 text-muted"><p>No estás inscrito en ningún torneo</p></div>
+      ) : (
+        <div className="row">
+          {inscritos.map((torneo) => (
+            <div key={torneo.id || torneo.torneoId || torneo.idTorneo || torneo.id_torneo} className="col-md-6 mb-3">
+              <div className="card shadow-sm h-100">
+                <div className="card-body">
+                  <h5 className="card-title text-dark">
+                    {torneo.nombreTorneo || torneo.nombre_torneo || torneo.nombre || "Torneo"}
+                  </h5>
+                  <p className="text-muted small">
+                    {torneo.fechaInicio || torneo.fecha_inicio || "?"} → {torneo.fechaTermino || torneo.fecha_termino || "?"}
+                  </p>
+                  {getEstadoBadge(torneo.estado || torneo.estadoTorneo || torneo.estado_torneo || "IN_COURSE")}
                 </div>
               </div>
-            ))}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

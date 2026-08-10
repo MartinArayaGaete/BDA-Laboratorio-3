@@ -21,7 +21,7 @@ import {
 function requestErrorMessage(error, fallback) {
   const data = error?.response?.data;
   if (typeof data === "string" && data.trim()) return data;
-  return data?.message ?? data?.detail ?? fallback;
+  return data?.message ?? data?.detail ?? data?.error ?? fallback;
 }
 
 function normalizeArrowScores(value) {
@@ -77,6 +77,7 @@ export default function TorneoDetalleView() {
   const [posicionesVersion, setPosicionesVersion] = useState(0);
   const [mapMessage, setMapMessage] = useState("");
   const [registroRondaExistente, setRegistroRondaExistente] = useState(false);
+  const [errorPuntaje, setErrorPuntaje] = useState("");
 
   const cargarDatos = useCallback(async () => {
     try {
@@ -93,10 +94,10 @@ export default function TorneoDetalleView() {
           .obtenerDatosCompletosTorneo(idTorneo)
           .catch(() => null),
         api
-          .get(`/rondas/torneo/${idTorneo}`)
+          .get(`/mongo/rondas/torneo/${idTorneo}`)
           .then((r) => r.data)
           .catch(() => []),
-        torneoActual.estadoTorneo === "COMPLETED"
+        torneoActual.estado === "FINISHED"
           ? torneoService.obtenerPodio(idTorneo).catch(() => [])
           : Promise.resolve([]),
       ]);
@@ -125,12 +126,12 @@ export default function TorneoDetalleView() {
 
   useEffect(() => {
     let ignore = false;
-    if (!torneo?.idCategoria) {
+    if (!torneo?.categoriaDistanciaId) {
       setDistanciaTiroM(null);
       return undefined;
     }
     categoriaServiceDistancias
-      .obtenerPorId(torneo.idCategoria)
+      .obtenerPorId(torneo.categoriaDistanciaId)
       .then((categoria) => {
         const distancia = Number(categoria?.distanciaTiro);
         if (!ignore)
@@ -144,7 +145,7 @@ export default function TorneoDetalleView() {
     return () => {
       ignore = true;
     };
-  }, [torneo?.idCategoria]);
+  }, [torneo?.categoriaDistanciaId]);
 
   useEffect(() => {
     let ignore = false;
@@ -178,8 +179,6 @@ export default function TorneoDetalleView() {
           posicionSeleccionada?.flechas,
         );
         const existeRegistro = Boolean(
-          posicionSeleccionada?.id_participacion ??
-          posicionSeleccionada?.idParticipacion ??
           posicionSeleccionada?.posicion_arquero ??
           posicionSeleccionada?.posicionArquero ??
           flechasRegistradas.length,
@@ -191,10 +190,16 @@ export default function TorneoDetalleView() {
             : ["", "", "", "", "", ""],
         );
         setPosicionArquero(
-          normalizeRoundPoint(posicionSeleccionada?.posicion_arquero),
+          normalizeRoundPoint(
+            posicionSeleccionada?.posicion_arquero ??
+            posicionSeleccionada?.posicionArquero,
+          ),
         );
         setPosicionDiana(
-          normalizeRoundPoint(posicionSeleccionada?.posicion_diana),
+          normalizeRoundPoint(
+            posicionSeleccionada?.posicion_diana ??
+            posicionSeleccionada?.posicionDiana,
+          ),
         );
       })
       .catch(() => {
@@ -232,9 +237,7 @@ export default function TorneoDetalleView() {
   const handleReubicarArquero = () => {
     setPosicionArquero(null);
     setPosicionDiana(null);
-    setMapMessage(
-      "Selecciona nuevamente la posición del arquero sobre la línea de tiro.",
-    );
+    setMapMessage("Selecciona nuevamente la posición del arquero sobre la línea de tiro.");
   };
   const handleReubicarDiana = () => {
     setPosicionDiana(null);
@@ -244,7 +247,7 @@ export default function TorneoDetalleView() {
   const ubicacionesListas = Boolean(posicionArquero && posicionDiana);
   const puedeSeleccionarUbicacion =
     Boolean(usuarioSel && rondaSel) &&
-    torneo?.estadoTorneo === "IN_COURSE" &&
+    torneo?.estado === "IN_COURSE" &&
     distanciaTiroM !== null;
   const instruccionMapa = !usuarioSel
     ? "Selecciona un participante para ubicarlo en el mapa."
@@ -292,31 +295,23 @@ export default function TorneoDetalleView() {
           flechasInt[i] > 10,
       )
     ) {
-      setError("Completa las seis flechas con valores enteros entre 0 y 10.");
+      setErrorPuntaje("Completa las seis flechas con valores enteros entre 0 y 10.");
       return;
     }
     if (!ubicacionesListas) {
-      setError(
-        "Debes ubicar al arquero y a la diana antes de registrar las flechas.",
-      );
+      setErrorPuntaje("Debes ubicar al arquero y a la diana antes de registrar las flechas.");
       return;
     }
     const ronda = rondas.find((r) => r.numeroRonda === Number(rondaSel));
     if (!ronda) return;
-    const participacion = inscritos.find(
-      (i) => String(i.idUsuario) === String(usuarioSel),
-    );
-    if (!participacion?.idParticipacion) {
-      setError("No se encontró la participación del arquero seleccionado.");
-      return;
-    }
-    setError("");
+
+    setErrorPuntaje("");
     setGuardandoPuntaje(true);
     try {
       await torneoService.registrarPuntaje({
-        idRonda: ronda.idRonda,
-        idParticipacion: participacion.idParticipacion,
-        idAdmin: 1,
+        torneoId: idTorneo,
+        rondaId: ronda.id,
+        usuarioId: Number(usuarioSel),
         flechas: flechasInt,
         posicionArquero: pointToGeoJSONString(posicionArquero),
         posicionDiana: pointToGeoJSONString(posicionDiana),
@@ -325,11 +320,8 @@ export default function TorneoDetalleView() {
       setPosicionesVersion((v) => v + 1);
       void cargarDatos();
     } catch (requestError) {
-      setError(
-        requestErrorMessage(
-          requestError,
-          "No se pudieron registrar los puntajes.",
-        ),
+      setErrorPuntaje(
+        requestErrorMessage(requestError, "No se pudieron registrar los puntajes."),
       );
     } finally {
       setGuardandoPuntaje(false);
@@ -373,40 +365,30 @@ export default function TorneoDetalleView() {
                 fillPaint={{ "fill-color": "#10b981", "fill-opacity": 0.12 }}
                 linePaint={{ "line-color": "#059669", "line-width": 1 }}
               />
-              <PolygonsLayer data={torneo.geomZonaCompetencia} />
-              <LinesLayer data={torneo.lineaTiro} />
+              <PolygonsLayer data={torneo.zonaCompetenciaGeoJSON} />
+              <LinesLayer data={torneo.lineaTiroGeoJSON} />
               <ArcherDianaSelectorLayer
                 enabled={puedeSeleccionarUbicacion}
-                zone={torneo.geomZonaCompetencia}
-                shootingLine={torneo.lineaTiro}
+                zone={torneo.zonaCompetenciaGeoJSON}
+                shootingLine={torneo.lineaTiroGeoJSON}
                 distanceM={distanciaTiroM}
                 value={{ arquero: posicionArquero, diana: posicionDiana }}
                 registeredPositions={posicionesRonda}
                 onChange={handleCambiarPosiciones}
                 onMessage={setMapMessage}
               />
-              <FitBoundsFromPolygonLayer polygon={torneo.geomZonaCompetencia} />
+              <FitBoundsFromPolygonLayer polygon={torneo.zonaCompetenciaGeoJSON} />
             </Basemap>
           </div>
-          <div
-            className={`alert mt-2 mb-3 ${mapMessage ? "alert-info" : "alert-secondary"}`}
-          >
+          <div className={`alert mt-2 mb-3 ${mapMessage ? "alert-info" : "alert-secondary"}`}>
             {mapMessage || instruccionMapa}
             {posicionArquero && (
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-dark ms-3"
-                onClick={handleReubicarArquero}
-              >
+              <button type="button" className="btn btn-sm btn-outline-dark ms-3" onClick={handleReubicarArquero}>
                 Reubicar arquero
               </button>
             )}
             {posicionArquero && posicionDiana && (
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-dark ms-2"
-                onClick={handleReubicarDiana}
-              >
+              <button type="button" className="btn btn-sm btn-outline-dark ms-2" onClick={handleReubicarDiana}>
                 Reubicar diana
               </button>
             )}
@@ -418,7 +400,7 @@ export default function TorneoDetalleView() {
           <ListaParticipantes
             inscritos={inscritos}
             usuarioSel={usuarioSel}
-            estadoTorneo={torneo.estadoTorneo}
+            estadoTorneo={torneo.estado}
             onSeleccionarUsuario={handleSeleccionarUsuario}
           />
         </div>
@@ -434,13 +416,12 @@ export default function TorneoDetalleView() {
             ubicacionesListas={ubicacionesListas}
             registroRondaExistente={registroRondaExistente}
             guardandoPuntaje={guardandoPuntaje}
+            errorPuntaje={errorPuntaje}
             onGuardarPuntaje={handleGuardarPuntaje}
-            onRondaEliminada={cargarDatos}
-            posicionArquero={posicionArquero}
           />
         </div>
       </div>
-      {torneo.estadoTorneo === "COMPLETED" && podio.length > 0 && (
+      {torneo.estado === "FINISHED" && podio.length > 0 && (
         <Podio podio={podio} />
       )}
     </div>

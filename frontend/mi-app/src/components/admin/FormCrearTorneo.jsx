@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import torneoService from "../../api/apiTorneos.js";
-import categoriaServiceDistancias from "../../api/apiCategoriasDistancias.js";
-import categoriaServicePuntajes from "../../api/apiCategoriasPuntajes.js";
+import categoriaService from "../../api/apiCategoriasDistancias.js";
 import {
   DEFAULT_COORDS_LINEA_TIRO,
   DEFAULT_COORDS_ZONA_COMPETENCIA,
@@ -52,13 +51,11 @@ export default function FormCrearTorneo({
   onMapRequirementsChange,
 }) {
   const navigate = useNavigate();
-  const [categoriasDistancia, setCategoriasDistancia] = useState([]);
-  const [categoriasPuntaje, setCategoriasPuntaje] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
   const [formData, setFormData] = useState({
     nombreTorneo: "",
     idCategoria: "",
-    idCategoriaDiana: "",
     fechaInicio: "",
     fechaTermino: "",
     numeroRondas: 1,
@@ -78,13 +75,15 @@ export default function FormCrearTorneo({
   }, [coordsLineaTiro]);
 
   const coordenadasCompletas = Boolean(zonaGeoJSON && lineaGeoJSON);
-  const categoriaDistanciaSeleccionada = useMemo(() => {
-    return categoriasDistancia.find(
-      (categoria) => String(categoria.idCategoria) === String(formData.idCategoria),
+  const categoriaSeleccionada = useMemo(() => {
+    return categorias.find(
+      (categoria) =>
+        String(categoria.idCategoria) === String(formData.idCategoria),
     );
-  }, [categoriasDistancia, formData.idCategoria]);
-
-  const distanciaTiroSeleccionada = Number(categoriaDistanciaSeleccionada?.distanciaTiro);
+  }, [categorias, formData.idCategoria]);
+  const distanciaTiroSeleccionada = Number(
+    categoriaSeleccionada?.distanciaTiro,
+  );
   const distanciaTiroMapa = Number.isFinite(distanciaTiroSeleccionada)
     ? distanciaTiroSeleccionada
     : null;
@@ -94,36 +93,26 @@ export default function FormCrearTorneo({
     Number.isInteger(plazasMaximas) &&
     plazasMaximas >= 1 &&
     plazasMaximas <= 100;
-  // El alto minimo se calcula por 6, para dar margen de posicionamiento 
+  // El alto minimo se calcula por 6, para dar margen de posicionamiento
   // para la colocación de las dianas, de forma que no es 100% restrictiva
   // La regla de los 5 metros es para que la linea de tiro no quede pegada a la zona de competencia, y se pueda colocar un espacio de seguridad
   const altoMinimo = plazasMaximas > 0 ? plazasMaximas * 6 : 0;
-  const anchoMinimo = (distanciaTiroMapa ?? DEFAULT_ANCHO_MINIMO_MAPA)*1.2;
+  const anchoMinimo = (distanciaTiroMapa ?? DEFAULT_ANCHO_MINIMO_MAPA) * 1.2;
 
   useEffect(() => {
     let ignore = false;
 
-    Promise.allSettled([
-      categoriaServiceDistancias.obtenerTodas(),
-      categoriaServicePuntajes.obtenerTodas(),
-    ])
-      .then(([distanciaResult, puntajeResult]) => {
-        if (ignore) return;
-
-        if (distanciaResult.status === "fulfilled") {
-          setCategoriasDistancia(distanciaResult.value || []);
-        } else {
-          console.error("Error al cargar categorias de distancias:", distanciaResult.reason);
+    categoriaService
+      .obtenerTodas()
+      .then((data) => {
+        if (!ignore) {
+          setCategorias(data || []);
         }
-
-        if (puntajeResult.status === "fulfilled") {
-          setCategoriasPuntaje(puntajeResult.value || []);
-        } else {
-          console.error("Error al cargar categorias de dianas:", puntajeResult.reason);
-        }
-
-        if (distanciaResult.status === "rejected" || puntajeResult.status === "rejected") {
-          setError("No se pudieron cargar las categorias disponibles.");
+      })
+      .catch((err) => {
+        console.error("Error al cargar categorias:", err);
+        if (!ignore) {
+          setError("No se pudieron cargar las categorias.");
         }
       })
       .finally(() => {
@@ -180,12 +169,7 @@ export default function FormCrearTorneo({
     }
 
     if (!formData.idCategoria) {
-      setError("Debe seleccionar una categoria de distancia");
-      return;
-    }
-
-    if (!formData.idCategoriaDiana) {
-      setError("Debe seleccionar una categoria de puntaje o diana");
+      setError("Debe seleccionar una categoria");
       return;
     }
 
@@ -213,36 +197,38 @@ export default function FormCrearTorneo({
 
     try {
       await torneoService.crearTorneo({
-        nombreTorneo: formData.nombreTorneo,
-        idCategoria: Number.parseInt(formData.idCategoria, 10),
-        idCategoriaDiana: Number.parseInt(formData.idCategoriaDiana, 10),
+        nombre: formData.nombreTorneo,
+        categoriaDistanciaId: parseInt(formData.idCategoria),
+        categoriaDianaId: 1,
         fechaInicio: formData.fechaInicio,
         fechaTermino: formData.fechaTermino,
-        nroPlazaMax: plazasMaximas,
-        geomZonaCompetencia: JSON.stringify(zonaGeoJSON),
-        lineaTiro: JSON.stringify(lineaGeoJSON),
+        plazasMax: plazasMaximas,
+        zonaCompetenciaGeoJSON: JSON.stringify(zonaGeoJSON),
+        lineaTiroGeoJSON: JSON.stringify(lineaGeoJSON),
       });
 
       const todos = await torneoService.obtenerTodos();
       const torneoCreado = todos
         .reverse()
-        .find((t) => t.nombreTorneo === formData.nombreTorneo);
+        .find((t) => t.nombre === formData.nombreTorneo);
 
       if (torneoCreado) {
-        const promesasRondas = [];
-        for (let i = 1; i <= Number.parseInt(formData.numeroRondas, 10); i++) {
-          promesasRondas.push(
-            torneoService.crearRonda(torneoCreado.idTorneo, i),
-          );
+        const promesasRondas = []; // ← Faltaba declarar
+        for (let i = 1; i <= parseInt(formData.numeroRondas); i++) {
+          promesasRondas.push(torneoService.crearRonda(torneoCreado.id, i));
         }
-        await Promise.all(promesasRondas);
+        await Promise.all(promesasRondas); // ← Faltaba await
       }
 
       setSuccess("Torneo creado exitosamente. Redirigiendo...");
       setTimeout(() => navigate("/admin/torneos"), 2000);
     } catch (err) {
       console.error("Error al crear torneo:", err);
-      setError(err.response?.data?.message || "Error al crear el torneo.");
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Error al crear el torneo.",
+      );
       setGuardando(false);
     }
   };
@@ -251,7 +237,7 @@ export default function FormCrearTorneo({
     return (
       <div className="card shadow">
         <div className="card-body py-5 text-center">
-          <div className="spinner-border text-primary" aria-label="Cargando" />
+          <div className="spinner-border text-primary" role="status" />
           <p className="mt-2 text-muted">Cargando datos...</p>
         </div>
       </div>
@@ -263,7 +249,6 @@ export default function FormCrearTorneo({
       <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <h4 className="mb-0">Crear Nuevo Torneo</h4>
         <button
-          type="button"
           className="btn btn-sm btn-outline-light"
           onClick={() => navigate("/admin/torneos")}
         >
@@ -292,28 +277,14 @@ export default function FormCrearTorneo({
           </div>
         )}
 
-        {(categoriasDistancia.length === 0) && (
+        {categorias.length === 0 && (
           <div className="alert alert-warning">
-            No hay categorias de distancia disponibles para crear el torneo.{" "}
+            No hay categorias disponibles.{" "}
             <button
-              type="button"
               className="btn btn-sm btn-outline-warning ms-2"
-              onClick={() => navigate("/admin/categorias/distancia")}
+              onClick={() => navigate("/admin/categorias")}
             >
-              Ir a categorias de distancia
-            </button>
-          </div>
-        )}
-
-        {(categoriasPuntaje.length === 0) && (
-          <div className="alert alert-warning">
-            No hay categorias de diana disponibles para crear el torneo.{" "}
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-warning ms-2"
-              onClick={() => navigate("/admin/categorias/diana")}
-            >
-              Ir a categorias de diana
+              Ir a Categorias
             </button>
           </div>
         )}
@@ -327,10 +298,9 @@ export default function FormCrearTorneo({
         <form onSubmit={handleSubmit}>
           <h5 className="mb-3">Datos del Torneo</h5>
           <div className="row g-3 mb-4">
-            <div className="col-md-3">
-              <label htmlFor="nombreTorneo" className="form-label fw-bold">Nombre del Torneo *</label>
+            <div className="col-md-6">
+              <label className="form-label fw-bold">Nombre del Torneo *</label>
               <input
-                id="nombreTorneo"
                 type="text"
                 className="form-control"
                 name="nombreTorneo"
@@ -338,51 +308,33 @@ export default function FormCrearTorneo({
                 onChange={handleChange}
                 required
                 placeholder="Ej: Copa Metropolitana 2026"
-                disabled={guardando || categoriasDistancia.length === 0 || categoriasPuntaje.length === 0}
+                disabled={guardando || categorias.length === 0}
               />
             </div>
             <div className="col-md-3">
-              <label htmlFor="idCategoria" className="form-label fw-bold">Categoría de Distancia *</label>
+              <label className="form-label fw-bold">Categoria *</label>
               <select
-                id="idCategoria"
                 className="form-select"
                 name="idCategoria"
                 value={formData.idCategoria}
                 onChange={handleChange}
                 required
-                disabled={guardando || categoriasDistancia.length === 0}
+                disabled={guardando || categorias.length === 0}
               >
                 <option value="">Seleccione...</option>
-                {categoriasDistancia.map((categoria) => (
-                  <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                {categorias.map((categoria) => (
+                  <option
+                    key={categoria.idCategoria}
+                    value={categoria.idCategoria}
+                  >
                     {categoria.nombreCategoria}
                   </option>
                 ))}
               </select>
             </div>
             <div className="col-md-3">
-              <label htmlFor="idCategoriaDiana" className="form-label fw-bold">Categoría de Diana / Puntaje *</label>
-              <select
-                id="idCategoriaDiana"
-                className="form-select"
-                name="idCategoriaDiana"
-                value={formData.idCategoriaDiana}
-                onChange={handleChange}
-                required
-                disabled={guardando || categoriasPuntaje.length === 0}
-              >
-                <option value="">Seleccione...</option>
-                {categoriasPuntaje.map((categoria) => (
-                  <option key={categoria.idCategoriaDiana} value={categoria.idCategoriaDiana}>
-                    {categoria.nombreCategoriaDiana || categoria.nombreCategoria}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-3">
-              <label htmlFor="nroPlazaMax" className="form-label fw-bold">N° Plazas *</label>
+              <label className="form-label fw-bold">N° Plazas *</label>
               <input
-                id="nroPlazaMax"
                 type="number"
                 className="form-control"
                 name="nroPlazaMax"
@@ -392,7 +344,7 @@ export default function FormCrearTorneo({
                 max="100"
                 step="1"
                 required
-                disabled={guardando || categoriasDistancia.length === 0 || categoriasPuntaje.length === 0}
+                disabled={guardando || categorias.length === 0}
               />
               <small className="text-muted">
                 Alto minimo: {altoMinimo}m · Ancho minimo: {anchoMinimo}m
@@ -402,9 +354,8 @@ export default function FormCrearTorneo({
 
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <label htmlFor="numeroRondas" className="form-label fw-bold">N° Rondas *</label>
+              <label className="form-label fw-bold">N° Rondas *</label>
               <input
-                id="numeroRondas"
                 type="number"
                 className="form-control"
                 name="numeroRondas"
@@ -413,34 +364,32 @@ export default function FormCrearTorneo({
                 min="1"
                 max="10"
                 required
-                disabled={guardando || categoriasDistancia.length === 0 || categoriasPuntaje.length === 0}
+                disabled={guardando || categorias.length === 0}
               />
             </div>
             <div className="col-md-4">
-              <label htmlFor="fechaInicio" className="form-label fw-bold">Fecha Inicio *</label>
+              <label className="form-label fw-bold">Fecha Inicio *</label>
               <input
-                id="fechaInicio"
                 type="date"
                 className="form-control"
                 name="fechaInicio"
                 value={formData.fechaInicio}
                 onChange={handleChange}
                 required
-                disabled={guardando || categoriasDistancia.length === 0 || categoriasPuntaje.length === 0}
+                disabled={guardando || categorias.length === 0}
                 min={minDate}
               />
             </div>
             <div className="col-md-5">
-              <label htmlFor="fechaTermino" className="form-label fw-bold">Fecha Término *</label>
+              <label className="form-label fw-bold">Fecha Término *</label>
               <input
-                id="fechaTermino"
                 type="date"
                 className="form-control"
                 name="fechaTermino"
                 value={formData.fechaTermino}
                 onChange={handleChange}
                 required
-                disabled={guardando || categoriasDistancia.length === 0 || categoriasPuntaje.length === 0}
+                disabled={guardando || categorias.length === 0}
                 min={formData.fechaInicio || minDate}
               />
             </div>
@@ -483,16 +432,12 @@ export default function FormCrearTorneo({
               type="submit"
               className="btn btn-dark"
               disabled={
-                guardando ||
-                categoriasDistancia.length === 0 ||
-                categoriasPuntaje.length === 0 ||
-                !coordenadasCompletas
+                guardando || categorias.length === 0 || !coordenadasCompletas
               }
             >
               {guardando ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" />
-                  {' '}
+                  <span className="spinner-border spinner-border-sm me-2"></span>
                   Creando...
                 </>
               ) : (

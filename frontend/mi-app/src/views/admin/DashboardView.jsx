@@ -25,8 +25,8 @@ export default function DashboardView() {
         ]);
 
         setStats({
-          torneosActivos: torneos.filter((t) => t.estadoTorneo === "IN_COURSE")
-            .length,
+          // MongoDB: estado en lugar de estadoTorneo
+          torneosActivos: torneos.filter((t) => t.estado === "IN_COURSE").length,
           totalTorneos: torneos.length,
           totalUsuarios: usuarios.length,
           totalCategorias: categorias.length,

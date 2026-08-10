@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import categoriaServiceDistancias from "../../api/apiCategoriasDistancias.js";
+import categoriaService from "../../api/apiCategoriasDistancias.js";
 
 export default function TablaCategoriasDistancias({
   categorias,

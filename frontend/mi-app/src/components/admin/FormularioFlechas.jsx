@@ -38,8 +38,9 @@ export default function FormularioFlechas({
     const ronda = rondas.find((r) => r.numeroRonda === Number(rondaSel));
     if (!ronda) return;
 
-    if (ronda.idZonaAmbiental !== null && ronda.idZonaAmbiental !== undefined) {
-      setClimaSel(String(ronda.idZonaAmbiental));
+    // MongoDB: postgisZonaId en lugar de idZonaAmbiental
+    if (ronda.postgisZonaId !== null && ronda.postgisZonaId !== undefined) {
+      setClimaSel(String(ronda.postgisZonaId));
       setZonaAsignada(true);
       return;
     }
@@ -55,9 +56,10 @@ export default function FormularioFlechas({
   }, [registroRondaExistente, rondaSel, rondas]);
 
   useEffect(() => {
-    if (torneo?.idTorneo) {
+    // MongoDB: id en lugar de idTorneo
+    if (torneo?.id) {
       torneoService
-        .obtenerClimasPorTorneo(torneo.idTorneo)
+        .obtenerClimasPorTorneo(torneo.id)
         .then((climasTorneo) => {
           const sectores = Array.isArray(climasTorneo)
             ? climasTorneo
@@ -84,8 +86,9 @@ export default function FormularioFlechas({
       const idZonaAmbiental =
         climaSel === CLIMA_NORMAL_VALUE ? null : parseInt(climaSel, 10);
 
+      // MongoDB: ronda.id en lugar de ronda.idRonda
       await rondaService.asignarZonaAmbiental(
-        ronda.idRonda,
+        ronda.id,
         idZonaAmbiental,
       );
       setZonaAsignada(true);
@@ -94,7 +97,8 @@ export default function FormularioFlechas({
     }
   };
 
-  if (torneo.estadoTorneo === "NOT_STARTED") {
+  // MongoDB: PENDIENTE en lugar de NOT_STARTED
+  if (torneo.estado === "PENDIENTE") {
     return (
       <div className="card">
         <div className="card-body text-center py-5">
@@ -105,7 +109,8 @@ export default function FormularioFlechas({
     );
   }
 
-  if (torneo.estadoTorneo === "COMPLETED") {
+  // MongoDB: FINISHED en lugar de COMPLETED
+  if (torneo.estado === "FINISHED") {
     return (
       <div className="card">
         <div className="card-body text-center py-5">
@@ -148,8 +153,9 @@ export default function FormularioFlechas({
             required
           >
             <option value="">-- Elige una ronda --</option>
+            {/* MongoDB: r.id en lugar de r.idRonda */}
             {rondas.map((r) => (
-              <option key={r.idRonda} value={r.numeroRonda}>
+              <option key={r.id} value={r.numeroRonda}>
                 Ronda N° {r.numeroRonda}
               </option>
             ))}

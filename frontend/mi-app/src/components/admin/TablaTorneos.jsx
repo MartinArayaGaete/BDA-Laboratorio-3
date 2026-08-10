@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import torneoService from "../../api/apiTorneos.js";
 
 const ESTADOS = {
-  NOT_STARTED: { class: "bg-secondary", text: "No Iniciado" },
+  PENDIENTE: { class: "bg-secondary", text: "No Iniciado" },
   IN_COURSE: { class: "bg-primary", text: "En Curso" },
-  COMPLETED: { class: "bg-success", text: "Finalizado" },
+  FINISHED: { class: "bg-success", text: "Finalizado" },
 };
 
 export default function TablaTorneos({ torneos, onTorneoActualizado }) {
@@ -15,23 +15,19 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
   const [torneoEditando, setTorneoEditando] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [formData, setFormData] = useState({
-    nombreTorneo: "",
+    nombre: "",
     fechaInicio: "",
     fechaTermino: "",
-    nroPlazaMax: 10,
-    geomZonaCompetencia: "",
-    lineaTiro: "",
+    plazasMax: 10,
   });
 
   const abrirEditar = (torneo) => {
     setTorneoEditando(torneo);
     setFormData({
-      nombreTorneo: torneo.nombreTorneo,
-      fechaInicio: torneo.fechaInicio,
-      fechaTermino: torneo.fechaTermino,
-      nroPlazaMax: torneo.nroPlazaMax || 10,
-      geomZonaCompetencia: torneo.geomZonaCompetencia || "",
-      lineaTiro: torneo.lineaTiro || "",
+      nombre: torneo.nombre || "",
+      fechaInicio: torneo.fechaInicio || "",
+      fechaTermino: torneo.fechaTermino || "",
+      plazasMax: torneo.plazasMax || 10,
     });
     setShowModal(true);
   };
@@ -43,7 +39,7 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
 
   const handleGuardar = async () => {
     if (
-      !formData.nombreTorneo.trim() ||
+      !formData.nombre.trim() ||
       !formData.fechaInicio ||
       !formData.fechaTermino
     ) {
@@ -53,33 +49,41 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
 
     setGuardando(true);
     try {
-      await torneoService.actualizarTorneo(torneoEditando.idTorneo, {
-        nombreTorneo: formData.nombreTorneo.trim(),
+      await torneoService.actualizarTorneo(torneoEditando.id, {
+        nombre: formData.nombre.trim(),
         fechaInicio: formData.fechaInicio,
         fechaTermino: formData.fechaTermino,
-        nroPlazaMax: parseInt(formData.nroPlazaMax),
-        geomZonaCompetencia: formData.geomZonaCompetencia,
-        lineaTiro: formData.lineaTiro,
-        idCategoria: torneoEditando.idCategoria,
+        plazasMax: parseInt(formData.plazasMax),
+        categoriaDistanciaId: torneoEditando.categoriaDistanciaId,
+        categoriaDianaId: torneoEditando.categoriaDianaId,
+        zonaCompetenciaGeoJSON: torneoEditando.zonaCompetenciaGeoJSON || "",
+        lineaTiroGeoJSON: torneoEditando.lineaTiroGeoJSON || "",
       });
       cerrarModal();
       if (onTorneoActualizado) onTorneoActualizado();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al actualizar el torneo");
+      alert(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Error al actualizar el torneo",
+      );
     } finally {
       setGuardando(false);
     }
   };
 
   const handleEliminar = async (torneo) => {
-    if (!window.confirm(`¿Eliminar el torneo "${torneo.nombreTorneo}"?`))
-      return;
-    setEliminando(torneo.idTorneo);
+    if (!window.confirm(`¿Eliminar el torneo "${torneo.nombre}"?`)) return;
+    setEliminando(torneo.id);
     try {
-      await torneoService.eliminarTorneo(torneo.idTorneo);
+      await torneoService.eliminarTorneo(torneo.id);
       if (onTorneoActualizado) onTorneoActualizado();
     } catch (err) {
-      alert(err.response?.data?.message || "Error al eliminar el torneo");
+      alert(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Error al eliminar el torneo",
+      );
     } finally {
       setEliminando(null);
     }
@@ -91,18 +95,16 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
     <>
       <div className="row">
         {torneos.map((torneo) => {
-          const estado = ESTADOS[torneo.estadoTorneo] || {
+          const estado = ESTADOS[torneo.estado] || {
             class: "bg-dark",
-            text: torneo.estadoTorneo,
+            text: torneo.estado,
           };
           return (
-            <div key={torneo.idTorneo} className="col-md-6 col-lg-4 mb-3">
+            <div key={torneo.id} className="col-md-6 col-lg-4 mb-3">
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-start mb-2">
-                    <h5 className="card-title text-dark">
-                      {torneo.nombreTorneo}
-                    </h5>
+                    <h5 className="card-title text-dark">{torneo.nombre}</h5>
                     <span className={`badge ${estado.class}`}>
                       {estado.text}
                     </span>
@@ -111,18 +113,15 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
                     {torneo.fechaInicio} → {torneo.fechaTermino}
                   </p>
                   <p className="text-muted small mb-2">
-                    Plazas: {torneo.nroPlazaActual ?? 0}/
-                    {torneo.nroPlazaMax ?? "?"}
+                    Plazas: {torneo.plazasActual ?? 0}/{torneo.plazasMax ?? "?"}
                   </p>
                   <button
                     className="btn btn-outline-dark btn-sm w-100 mb-1"
-                    onClick={() =>
-                      navigate(`/admin/torneos/${torneo.idTorneo}`)
-                    }
+                    onClick={() => navigate(`/admin/torneos/${torneo.id}`)}
                   >
                     Gestionar Torneo
                   </button>
-                  {torneo.estadoTorneo === "NOT_STARTED" && (
+                  {torneo.estado === "PENDIENTE" && (
                     <>
                       <button
                         className="btn btn-outline-dark btn-sm w-100 mb-1"
@@ -133,9 +132,9 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
                       <button
                         className="btn btn-outline-danger btn-sm w-100"
                         onClick={() => handleEliminar(torneo)}
-                        disabled={eliminando === torneo.idTorneo}
+                        disabled={eliminando === torneo.id}
                       >
-                        {eliminando === torneo.idTorneo
+                        {eliminando === torneo.id
                           ? "Eliminando..."
                           : "Eliminar"}
                       </button>
@@ -172,9 +171,9 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
                   <input
                     type="text"
                     className="form-control"
-                    value={formData.nombreTorneo}
+                    value={formData.nombre}
                     onChange={(e) =>
-                      setFormData({ ...formData, nombreTorneo: e.target.value })
+                      setFormData({ ...formData, nombre: e.target.value })
                     }
                   />
                 </div>
@@ -222,9 +221,9 @@ export default function TablaTorneos({ torneos, onTorneoActualizado }) {
                     className="form-control"
                     min="1"
                     max="100"
-                    value={formData.nroPlazaMax}
+                    value={formData.plazasMax}
                     onChange={(e) =>
-                      setFormData({ ...formData, nroPlazaMax: e.target.value })
+                      setFormData({ ...formData, plazasMax: e.target.value })
                     }
                   />
                 </div>
