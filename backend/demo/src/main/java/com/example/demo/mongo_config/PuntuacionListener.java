@@ -39,7 +39,7 @@ public class PuntuacionListener {
                         return;
                     }
 
-                    String usuarioId = document.getString("usuarioId");
+                    Long usuarioId = document.getLong("usuarioId");
                     String torneoId = document.getString("torneoId");
 
                     if (usuarioId != null) {
@@ -51,17 +51,17 @@ public class PuntuacionListener {
         listenerContainer.register(request, Document.class);
     }
 
-    private void ejecutarMergeRanking(String usuarioId, String torneoId) {
+    private void ejecutarMergeRanking(Long usuarioId, String torneoId) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("usuarioId").is(usuarioId).and("torneoId").is(torneoId)),
                 Aggregation.group("usuarioId", "torneoId")
-                        .sum("puntos").as("puntajeTotal"),
+                        .sum("puntajeTotal").as("puntajeTotal"),
                 Aggregation.project("puntajeTotal")
                         .and("_id.usuarioId").as("usuarioId")
                         .and("_id.torneoId").as("torneoId")
                         .andExclude("_id"),
                 MergeOperation.builder()
-                        .intoCollection("ranking_en_vivo")
+                        .intoCollection("ranking_vivo")
                         .on("torneoId","usuarioId")
                         .whenMatched(MergeOperation.WhenDocumentsMatch.mergeDocuments())
                         .whenNotMatched(MergeOperation.WhenDocumentsDontMatch.insertNewDocument())
