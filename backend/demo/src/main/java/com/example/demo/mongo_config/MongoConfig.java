@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.core.messaging.DefaultMessageListenerContainer;
+import org.springframework.data.mongodb.core.messaging.MessageListenerContainer;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.concurrent.TimeUnit;
@@ -43,4 +45,10 @@ public class MongoConfig {
     public MongoTemplate mongoTemplate(MongoDatabaseFactory factory) {
         return new MongoTemplate(factory);
     }
+
+    @Bean
+    public MessageListenerContainer messageListenerContainer(MongoTemplate mongoTemplate) {
+        return new DefaultMessageListenerContainer(mongoTemplate);
+    }
+
 }
