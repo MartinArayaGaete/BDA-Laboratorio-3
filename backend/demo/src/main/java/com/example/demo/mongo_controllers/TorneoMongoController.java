@@ -52,7 +52,6 @@ public class TorneoMongoController {
         }
     }
 
-
     @PutMapping("/{id}/finalizar")
     public ResponseEntity<?> finalizarTorneo(@PathVariable String id) {
         try {
@@ -62,16 +61,6 @@ public class TorneoMongoController {
         }
     }
 
-    @PutMapping("/{id}/zonas-ambientales/sincronizar")
-    public ResponseEntity<?> sincronizarZonasAmbientales(@PathVariable String id, @RequestParam Long sqlIdTorneo) {
-        try {
-            return ResponseEntity.ok(service.sincronizarZonasAmbientalesDesdeSql(id, sqlIdTorneo));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-
     @PutMapping("/{id}/siguiente-ronda")
     public ResponseEntity<?> siguienteRonda(@PathVariable String id) {
         try {
@@ -80,6 +69,4 @@ public class TorneoMongoController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
-
 }

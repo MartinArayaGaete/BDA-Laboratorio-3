@@ -7,9 +7,6 @@ import java.util.List;
 
 @Repository
 public interface TorneoMongoRepository extends MongoRepository<TorneoDocument, String> {
-
     List<TorneoDocument> findByEstado(String estado);
     boolean existsByNombre(String nombre);
-    boolean existsBySqlIdTorneo(Long sqlIdTorneo);
-    java.util.Optional<TorneoDocument> findBySqlIdTorneo(Long sqlIdTorneo);
 }

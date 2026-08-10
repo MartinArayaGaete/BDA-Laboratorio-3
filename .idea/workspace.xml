@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8773e373-b82f-4f6b-bb05-d99b8b893a1c" name="Changes" comment="Puntuaciones + mover carpetas">
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RankingVivoMongoController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/RankingVivoMongoRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RankingVivoMongoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/RondaMongoController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_controllers/TorneoMongoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/RondaMongoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_dtos/TorneoMongoDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_mappers/TorneoMongoMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/TorneoDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_models/TorneoDocument.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/TorneoMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_repositories/TorneoMongoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demo/src/main/java/com/example/demo/mongo_services/TorneoMongoService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
