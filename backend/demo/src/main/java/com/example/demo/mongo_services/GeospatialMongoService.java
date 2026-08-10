@@ -3,6 +3,9 @@ package com.example.demo.mongo_services;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class GeospatialMongoService {
 
@@ -34,5 +37,17 @@ public class GeospatialMongoService {
         """;
         Double result = jdbcTemplate.queryForObject(sql, Double.class, punto1GeoJSON, punto2GeoJSON);
         return result != null ? result : 0.0;
+    }
+
+
+    public List<Map<String, Object>> obtenerCategoriasPorPoligono(String poligonoGeoJSON) {
+        String sql = """
+        SELECT DISTINCT sa.id_zona_ambiental, ca.id_categoria_ambiental, ca.categoria_ambiental
+        FROM sectores_ambientales sa
+        JOIN categoria_ambiental ca ON sa.id_categoria_ambiental = ca.id_categoria_ambiental
+        WHERE ST_Intersects(sa.territorio, ST_SetSRID(ST_GeomFromGeoJSON(?), 4326))
+        ORDER BY ca.categoria_ambiental
+    """;
+        return jdbcTemplate.queryForList(sql, poligonoGeoJSON);
     }
 }

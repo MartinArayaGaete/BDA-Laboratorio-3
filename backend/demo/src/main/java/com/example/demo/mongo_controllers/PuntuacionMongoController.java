@@ -1,5 +1,6 @@
 package com.example.demo.mongo_controllers;
 
+import com.example.demo.mongo_dtos.RegistrarPuntajeDTO;
 import com.example.demo.mongo_models.PuntuacionDocument;
 import com.example.demo.mongo_services.PuntuacionMongoService;
 import com.example.demo.mongo_services.PuntuacionEstadisticaService;
@@ -122,6 +123,25 @@ public class PuntuacionMongoController {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registrar(@RequestBody RegistrarPuntajeDTO dto) {
+        try {
+            PuntuacionDocument doc = new PuntuacionDocument();
+            doc.setTorneoId(dto.getTorneoId());
+            doc.setRondaId(dto.getRondaId());
+            doc.setUsuarioId(dto.getUsuarioId());
+            doc.setFlechas(dto.getFlechas());
+            doc.setPosicionArquero(dto.getPosicionArquero());
+            doc.setPosicionDiana(dto.getPosicionDiana());
+
+            PuntuacionDocument saved = service.guardarOActualizarConReglamento(doc);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

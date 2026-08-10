@@ -13,4 +13,5 @@ public interface ParticipacionMongoRepository extends MongoRepository<Participac
     List<ParticipacionDocument> findByUsuarioId(Long usuarioId);
     Optional<ParticipacionDocument> findByTorneoIdAndUsuarioId(String torneoId, Long usuarioId);
     boolean existsByTorneoIdAndUsuarioId(String torneoId, Long usuarioId);
+    List<ParticipacionDocument> findByTorneoIdOrderByPosicionFinalAsc(String torneoId);
 }

@@ -1,7 +1,10 @@
 package com.example.demo.mongo_controllers;
 
+import com.example.demo.mongo_models.ParticipacionDocument;
 import com.example.demo.mongo_models.TorneoDocument;
 import com.example.demo.mongo_dtos.TorneoMongoDTO;
+import com.example.demo.mongo_repositories.ParticipacionMongoRepository;
+import com.example.demo.mongo_services.GeospatialMongoService;
 import com.example.demo.mongo_services.TorneoMongoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +18,15 @@ import java.util.Map;
 public class TorneoMongoController {
 
     private final TorneoMongoService service;
+    private final ParticipacionMongoRepository participacionMongoRepo;
+    private final GeospatialMongoService geospatialMongoService;
 
-    public TorneoMongoController(TorneoMongoService service) {
+    public TorneoMongoController(TorneoMongoService service,
+                                 ParticipacionMongoRepository participacionMongoRepo,
+                                 GeospatialMongoService geospatialMongoService) {
         this.service = service;
+        this.participacionMongoRepo = participacionMongoRepo;
+        this.geospatialMongoService = geospatialMongoService;
     }
 
     @GetMapping
@@ -65,6 +74,36 @@ public class TorneoMongoController {
     public ResponseEntity<?> siguienteRonda(@PathVariable String id) {
         try {
             return ResponseEntity.ok(service.siguienteRonda(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/podio")
+    public ResponseEntity<?> obtenerPodio(@PathVariable String id) {
+        try {
+            List<ParticipacionDocument> podio = participacionMongoRepo
+                    .findByTorneoIdOrderByPosicionFinalAsc(id)
+                    .stream()
+                    .filter(p -> p.getPosicionFinal() != null && p.getPosicionFinal() <= 3)
+                    .limit(3)
+                    .toList();
+            return ResponseEntity.ok(podio);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/climas")
+    public ResponseEntity<?> obtenerClimas(@PathVariable String id) {
+        try {
+            var torneo = service.findById(id);
+            if (torneo.getZonaCompetenciaGeoJSON() == null) {
+                return ResponseEntity.ok(List.of());
+            }
+            List<Map<String, Object>> climas = geospatialMongoService
+                    .obtenerCategoriasPorPoligono(torneo.getZonaCompetenciaGeoJSON());
+            return ResponseEntity.ok(climas);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

@@ -143,7 +143,11 @@ public class PuntuacionMongoService {
     private void actualizarRankingVivo(String torneoId, Long usuarioId, String nombreArquero, String nombreTorneo, int puntajeTotal) {
         RankingVivoDocument rankingDoc = rankingVivoMongoRepo
                 .findByTorneoIdAndUsuarioId(torneoId, usuarioId)
-                .orElseGet(RankingVivoDocument::new);
+                .orElseGet(() -> {
+                    RankingVivoDocument nuevo = new RankingVivoDocument();
+                    nuevo.setPosicion(1); // ← Valor inicial
+                    return nuevo;
+                });
         rankingDoc.setTorneoId(torneoId);
         rankingDoc.setUsuarioId(usuarioId);
         rankingDoc.setNombreArquero(nombreArquero);
