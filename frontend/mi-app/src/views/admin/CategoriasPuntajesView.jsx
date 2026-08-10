@@ -9,7 +9,7 @@ export default function CategoriasPuntajesView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const cargarCategorias = useCallback(() => {
+  const cargarCategoriasDiana = useCallback(() => {
     setLoading(true);
     categoriaServicePuntajes
       .obtenerTodas()
@@ -22,8 +22,8 @@ export default function CategoriasPuntajesView() {
   }, []);
 
   useEffect(() => {
-    cargarCategorias();
-  }, [cargarCategorias]);
+    cargarCategoriasDiana();
+  }, [cargarCategoriasDiana]);
 
   if (loading) return <LoadingSpinner message="Cargando categorías..." />;
 
@@ -35,7 +35,7 @@ export default function CategoriasPuntajesView() {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <FormCategoriasPuntajes onCategoriaCreada={cargarCategorias} />
+      <FormCategoriasPuntajes onCategoriaCreada={cargarCategoriasDiana} />
 
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
@@ -50,7 +50,7 @@ export default function CategoriasPuntajesView() {
           ) : (
             <TablaCategoriasPuntajes
               categorias={categorias}
-              onCategoriaEliminada={cargarCategorias}
+              onCategoriaEliminada={cargarCategoriasDiana}
             />
           )}
         </div>

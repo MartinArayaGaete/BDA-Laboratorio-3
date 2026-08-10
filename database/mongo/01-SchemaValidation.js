@@ -166,9 +166,6 @@ applyValidator("torneos", {
         },
         puntajeMinimo: {
           bsonType: "int"
-        },
-        puntajeMaximo: {
-          bsonType: "int"
         }
       }
     },

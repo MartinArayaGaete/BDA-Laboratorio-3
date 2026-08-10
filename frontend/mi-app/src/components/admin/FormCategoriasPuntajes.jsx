@@ -31,8 +31,8 @@ export default function FormCategoriasPuntajes({ onCategoriaCreada }) {
     setGuardando(true);
     try {
       await categoriaServicePuntajes.crearCategoria({
-        nombreCategoria: nombreCategoria.trim(),
-        puntuaciónMinima: puntuaciónMinimaNumerica,
+        nombreCategoriaDiana: nombreCategoria.trim(),
+        puntajeMinimo: puntuaciónMinimaNumerica,
       });
 
       const mensajePuntuacion = puntuaciónMinimaNumerica === null ? "" : ` con puntuación mínima de ${puntuaciónMinimaNumerica}`;

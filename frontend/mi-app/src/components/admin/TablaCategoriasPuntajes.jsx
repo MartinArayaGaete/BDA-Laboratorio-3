@@ -9,7 +9,7 @@ export default function TablaCategoriasPuntajes({
   const [editando, setEditando] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    nombreCategoria: "",
+    nombreCategoriaDiana: "",
     puntajeMinimo: "",
   });
   const [guardando, setGuardando] = useState(false);
@@ -17,7 +17,7 @@ export default function TablaCategoriasPuntajes({
   const abrirEditar = (categoria) => {
     setEditando(categoria);
     setFormData({
-      nombreCategoria: categoria.nombreCategoria,
+      nombreCategoriaDiana: categoria.nombreCategoriaDiana,
       puntajeMinimo: categoria.puntajeMinimo ?? "",
     });
     setShowModal(true);
@@ -29,7 +29,7 @@ export default function TablaCategoriasPuntajes({
   };
 
   const handleGuardar = async () => {
-    if (!formData.nombreCategoria.trim()) {
+    if (!formData.nombreCategoriaDiana.trim()) {
       alert("El nombre de la categoría es obligatorio");
       return;
     }
@@ -41,8 +41,8 @@ export default function TablaCategoriasPuntajes({
 
     setGuardando(true);
     try {
-      await categoriaServicePuntajes.actualizarCategoria(editando.idCategoria, {
-        nombreCategoria: formData.nombreCategoria.trim(),
+      await categoriaServicePuntajes.actualizarCategoria(editando.idCategoriaDiana, {
+        nombreCategoriaDiana: formData.nombreCategoriaDiana.trim(),
         puntajeMinimo: puntajeMinimoNumerico,
       });
       cerrarModal();
@@ -54,11 +54,11 @@ export default function TablaCategoriasPuntajes({
     }
   };
 
-  const handleEliminar = async (idCategoria, nombreCategoria) => {
-    if (!window.confirm(`¿Eliminar la categoría "${nombreCategoria}"?`)) return;
-    setEliminando(idCategoria);
+  const handleEliminar = async (idCategoriaDiana, nombreCategoriaDiana) => {
+    if (!window.confirm(`¿Eliminar la categoría "${nombreCategoriaDiana}"?`)) return;
+    setEliminando(idCategoriaDiana);
     try {
-      await categoriaServicePuntajes.eliminarCategoria(idCategoria);
+      await categoriaServicePuntajes.eliminarCategoria(idCategoriaDiana);
       if (onCategoriaActualizada) onCategoriaActualizada();
     } catch (err) {
       alert("Error al eliminar la categoría");
@@ -87,9 +87,9 @@ export default function TablaCategoriasPuntajes({
           </thead>
           <tbody>
             {categorias.map((categoria) => (
-              <tr key={categoria.idCategoria}>
-                <td className="text-muted">{categoria.idCategoria}</td>
-                <td className="fw-bold">{categoria.nombreCategoria}</td>
+              <tr key={categoria.idCategoriaDiana}>
+                <td className="text-muted">{categoria.idCategoriaDiana}</td>
+                <td className="fw-bold">{categoria.nombreCategoriaDiana}</td>
                 <td className="text-muted">
                   {categoria.puntajeMinimo == null
                     ? "—"
@@ -106,13 +106,13 @@ export default function TablaCategoriasPuntajes({
                     className="btn btn-outline-danger btn-sm"
                     onClick={() =>
                       handleEliminar(
-                        categoria.idCategoria,
-                        categoria.nombreCategoria,
+                        categoria.idCategoriaDiana,
+                        categoria.nombreCategoriaDiana,
                       )
                     }
-                    disabled={eliminando === categoria.idCategoria}
+                    disabled={eliminando === categoria.idCategoriaDiana}
                   >
-                    {eliminando === categoria.idCategoria ? "..." : "Eliminar"}
+                    {eliminando === categoria.idCategoriaDiana ? "..." : "Eliminar"}
                   </button>
                 </td>
               </tr>
@@ -143,11 +143,11 @@ export default function TablaCategoriasPuntajes({
                   <input
                     type="text"
                     className="form-control"
-                    value={formData.nombreCategoria}
+                    value={formData.nombreCategoriaDiana}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        nombreCategoria: e.target.value,
+                        nombreCategoriaDiana: e.target.value,
                       })
                     }
                   />
