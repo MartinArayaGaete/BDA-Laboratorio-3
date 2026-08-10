@@ -192,13 +192,13 @@ export default function TorneoDetalleView() {
         setPosicionArquero(
           normalizeRoundPoint(
             posicionSeleccionada?.posicion_arquero ??
-            posicionSeleccionada?.posicionArquero,
+              posicionSeleccionada?.posicionArquero,
           ),
         );
         setPosicionDiana(
           normalizeRoundPoint(
             posicionSeleccionada?.posicion_diana ??
-            posicionSeleccionada?.posicionDiana,
+              posicionSeleccionada?.posicionDiana,
           ),
         );
       })
@@ -237,7 +237,9 @@ export default function TorneoDetalleView() {
   const handleReubicarArquero = () => {
     setPosicionArquero(null);
     setPosicionDiana(null);
-    setMapMessage("Selecciona nuevamente la posición del arquero sobre la línea de tiro.");
+    setMapMessage(
+      "Selecciona nuevamente la posición del arquero sobre la línea de tiro.",
+    );
   };
   const handleReubicarDiana = () => {
     setPosicionDiana(null);
@@ -281,27 +283,22 @@ export default function TorneoDetalleView() {
       }
     }
   };
-
   const handleGuardarPuntaje = async (e) => {
     e.preventDefault();
     const flechasInt = flechas.map((f) => Number(f));
-    if (
-      flechas.length !== 6 ||
-      flechas.some(
-        (f, i) =>
-          f === "" ||
-          !Number.isInteger(flechasInt[i]) ||
-          flechasInt[i] < 0 ||
-          flechasInt[i] > 10,
-      )
-    ) {
-      setErrorPuntaje("Completa las seis flechas con valores enteros entre 0 y 10.");
+
+    // Solo validar que haya 6 flechas con algún valor
+    if (flechas.length !== 6 || flechas.some((f) => f === "")) {
+      setErrorPuntaje("Completa las seis flechas.");
       return;
     }
     if (!ubicacionesListas) {
-      setErrorPuntaje("Debes ubicar al arquero y a la diana antes de registrar las flechas.");
+      setErrorPuntaje(
+        "Debes ubicar al arquero y a la diana antes de registrar las flechas.",
+      );
       return;
     }
+
     const ronda = rondas.find((r) => r.numeroRonda === Number(rondaSel));
     if (!ronda) return;
 
@@ -320,9 +317,11 @@ export default function TorneoDetalleView() {
       setPosicionesVersion((v) => v + 1);
       void cargarDatos();
     } catch (requestError) {
-      setErrorPuntaje(
-        requestErrorMessage(requestError, "No se pudieron registrar los puntajes."),
-      );
+      // Mostrar el error crudo del backend (MongoDB Schema Validation, PostGIS, reglamento)
+      const data = requestError?.response?.data;
+      const errorCrudo =
+        data?.error || data?.message || data?.detail || JSON.stringify(data);
+      setErrorPuntaje("VALIDACIÓN RECHAZADA: " + errorCrudo);
     } finally {
       setGuardandoPuntaje(false);
     }
@@ -377,18 +376,30 @@ export default function TorneoDetalleView() {
                 onChange={handleCambiarPosiciones}
                 onMessage={setMapMessage}
               />
-              <FitBoundsFromPolygonLayer polygon={torneo.zonaCompetenciaGeoJSON} />
+              <FitBoundsFromPolygonLayer
+                polygon={torneo.zonaCompetenciaGeoJSON}
+              />
             </Basemap>
           </div>
-          <div className={`alert mt-2 mb-3 ${mapMessage ? "alert-info" : "alert-secondary"}`}>
+          <div
+            className={`alert mt-2 mb-3 ${mapMessage ? "alert-info" : "alert-secondary"}`}
+          >
             {mapMessage || instruccionMapa}
             {posicionArquero && (
-              <button type="button" className="btn btn-sm btn-outline-dark ms-3" onClick={handleReubicarArquero}>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-dark ms-3"
+                onClick={handleReubicarArquero}
+              >
                 Reubicar arquero
               </button>
             )}
             {posicionArquero && posicionDiana && (
-              <button type="button" className="btn btn-sm btn-outline-dark ms-2" onClick={handleReubicarDiana}>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-dark ms-2"
+                onClick={handleReubicarDiana}
+              >
                 Reubicar diana
               </button>
             )}
